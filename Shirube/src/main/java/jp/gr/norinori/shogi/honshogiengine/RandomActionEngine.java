@@ -12,22 +12,26 @@ import jp.gr.norinori.shogi.Scene;
 import jp.gr.norinori.shogi.Timer;
 import jp.gr.norinori.shogi.honshogi.HonShogi;
 import jp.gr.norinori.shogi.honshogi.HonShogiActionStatus;
-import jp.gr.norinori.shogi.honshogi.HonShogiScene;
 import jp.gr.norinori.shogi.honshogi.HonShogiPieceZoneOfControl;
+import jp.gr.norinori.shogi.honshogi.HonShogiScene;
 import jp.gr.norinori.shogi.honshogi.piece.Fu;
 
 public class RandomActionEngine implements ActionEngine {
 
+	// メソッド=================================================================
+
+	@Override
 	public Action action(Scene scene) {
 		Timer.start("pieceZoneOfControls", "action");
 		Player player = scene.getInitiativePlayer();
 
 		HonShogiPieceZoneOfControl pieceZoneOfControl;
-		HonShogiPieceZoneOfControl outePieceZoneOfControl = ((HonShogiScene) scene).getOuteEscapePieceZoneOfControls(player);
+		HonShogiPieceZoneOfControl outePieceZoneOfControl = ((HonShogiScene) scene)
+				.getOuteEscapePieceZoneOfControls(player);
 		if (outePieceZoneOfControl != null && !outePieceZoneOfControl.isEmpty()) {
 			pieceZoneOfControl = outePieceZoneOfControl;
 		} else {
-			pieceZoneOfControl = (HonShogiPieceZoneOfControl)scene.getPieceZoneOfControl(player);
+			pieceZoneOfControl = (HonShogiPieceZoneOfControl) scene.getPieceZoneOfControl(player);
 		}
 
 		Action action = new Action();

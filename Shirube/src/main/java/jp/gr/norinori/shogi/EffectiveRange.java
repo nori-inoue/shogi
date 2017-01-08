@@ -10,6 +10,7 @@ import java.util.List;
  *
  */
 public class EffectiveRange {
+	// メンバ===================================================================
 	public Point source;
 	public List<Point> list;
 
@@ -28,6 +29,7 @@ public class EffectiveRange {
 	 */
 	public EffectiveRange(Point source) {
 		this.list = new ArrayList<>();
+		this.source = source;
 	}
 
 	// メソッド=============================================================
@@ -40,9 +42,13 @@ public class EffectiveRange {
 		this.list.add(point);
 	}
 
+	/**
+	 * クローン
+	 */
 	public EffectiveRange clone() {
 		EffectiveRange newEffectiveRange = new EffectiveRange();
 		newEffectiveRange.list = this.list;
+		newEffectiveRange.source = this.source;
 
 		return newEffectiveRange;
 	}

@@ -17,6 +17,7 @@ import jp.gr.norinori.shogi.ZOCAnalyzer;
 import jp.gr.norinori.shogi.honshogi.piece.Fu;
 import jp.gr.norinori.shogi.honshogi.piece.Keima;
 import jp.gr.norinori.shogi.honshogi.piece.Kyo;
+import jp.gr.norinori.shogi.honshogi.piece.Ou;
 
 public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 
@@ -84,11 +85,11 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 		HonShogiPieceZoneOfControl pieceZoneOfControl = pieceZoneOfControlManager.pieceZoneOfControl;
 		HonShogiPieceZoneOfControl otherPieceZoneOfControl = otherPieceZoneOfControlManager.pieceZoneOfControl;
 
-		Point ouPoint = pieceZoneOfControlManager.ouPoint;
-
 		// 持駒の移動可能範囲を求める
-		// 移動不可の位置への打ち禁止
+		// ===========================================================
 		Timer.start("check movable1", "analyzePieceZoneOfControlManager");
+		List<PieceMove> stockPieceZoneOfControl = new ArrayList<>();
+
 		byte startFuIndex = 1;
 		byte endFuIndex = HonShogiField.MAX_Y;
 		byte startKeimaIndex = 2;
@@ -138,17 +139,18 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 					Point newPoint = new Point(x, y);
 					if (!existsMap.containsKey(newPoint) && (!(pieceType instanceof Fu) || !fuMap.containsKey(x))) {
 						PieceMove pieceMove = new PieceMove(null, newPoint, piece, piece);
-						pieceZoneOfControl.add(pieceMove);
+						stockPieceZoneOfControl.add(pieceMove);
 					}
 				}
 			}
 		}
 		Timer.stop("check movable1");
 
+		// 王は相手の移動範囲に移動不可
+		// =================================================================
 		Timer.start("check movable2", "analyzePieceZoneOfControlManager");
 		List<PieceMove> removePieceZoneOfControl = new ArrayList<>();
 
-		// 王は相手の移動範囲に移動不可
 		// 王手軌道を除外
 		Map<Point, Integer> effectiveRangePoint = otherPieceZoneOfControl.getEffectiveRangePoint();
 
@@ -164,87 +166,82 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 		}
 		Timer.stop("check movable2");
 
-		// 自分への王手ラインを取得する(自分の駒を無視した王手ラインを取得）
+		// 王手軌道上の駒の移動可能を判定(王は除外)
+		// =================================================================
 		Timer.start("check movable3", "analyzePieceZoneOfControlManager");
-		List<List<Point>> outeLines = HonShogi.getOuteline(otherPieceZoneOfControl, otherPlayer, null, ouPoint);
-		for (List<Point> outeLine : outeLines) {
-			Point blockPoint = null;
-			List<PieceMove> blockPieceZoneOfControlList = new ArrayList<>();
-			oute_range: for (Point outeLinePoint : outeLine) {
-				for (PieceMove pieceMove : pieceZoneOfControl.getList()) {
-					// 王手ラインに駒がある場合
-					if (outeLinePoint.equals(pieceMove.from)) {
-						// 既にブロックした駒がある場合は王手ラインに２駒あるので自由に移動可能
-						if (blockPoint != null && !blockPoint.equals(pieceMove.from)) {
-							blockPoint = null;
-							break oute_range;
-						}
+		List<PieceMove> outeLine = otherPieceZoneOfControl.getOuteLine();
+		for (PieceMove pieceMove : pieceZoneOfControl.getList()) {
+			if (pieceMove.toPiece.type instanceof Ou) {
+				continue;
+			}
 
-						// 移動先が王手ライン上以外は移動不可
-						boolean existsMovable = false;
-						for (Point p1 : outeLine) {
-							if (p1.equals(pieceMove.to)) {
-								existsMovable = true;
-								break;
-							}
-						}
-						if (!existsMovable) {
-							blockPoint = pieceMove.from;
-							blockPieceZoneOfControlList.add(pieceMove);
+			// 移動先が王手軌道上以外は移動不可
+			for (PieceMove outePieceMove : outeLine) {
+				if (pieceMove.from.equals(outePieceMove.to)) {
+
+					boolean existsMovable = false;
+					for (PieceMove outePieceMove2 : outeLine) {
+						// 同じ王手している駒の軌道のみ対象
+						if (outePieceMove.from.equals(outePieceMove2.from) && pieceMove.to.equals(outePieceMove2.to)) {
+							existsMovable = true;
+							break;
 						}
 					}
-				}
-			}
-			if (blockPoint != null) {
-				for (PieceMove pieceMove : blockPieceZoneOfControlList) {
-					pieceZoneOfControl.remove(pieceMove);
+					if (!existsMovable) {
+						removePieceZoneOfControl.add(pieceMove);
+					}
 				}
 			}
 		}
 		Timer.stop("check movable3");
 
 		// 移動不可範囲の抽出
-		Timer.start("check movable4", "analyzePieceZoneOfControlManager");
-		for (PieceMove pieceMove : pieceZoneOfControl.getList()) {
-			PieceType pieceType = pieceMove.toPiece.type;
-
-			if (pieceType instanceof Fu) {
-				if (player.getDirection() == Direction.UP) {
-					if (pieceMove.to.y == 0) {
-						removePieceZoneOfControl.add(pieceMove);
-					}
-				} else {
-					if (pieceMove.to.y == HonShogiField.MAX_Y) {
-						removePieceZoneOfControl.add(pieceMove);
-					}
-				}
-			} else if (pieceType instanceof Kyo) {
-				if (player.getDirection() == Direction.UP) {
-					if (pieceMove.to.y == 0) {
-						removePieceZoneOfControl.add(pieceMove);
-					}
-				} else {
-					if (pieceMove.to.y == HonShogiField.MAX_Y) {
-						removePieceZoneOfControl.add(pieceMove);
-					}
-				}
-			} else if (pieceType instanceof Keima) {
-				if (player.getDirection() == Direction.UP) {
-					if (pieceMove.to.y <= 1) {
-						removePieceZoneOfControl.add(pieceMove);
-					}
-				} else {
-					if (pieceMove.to.y >= HonShogiField.MAX_Y - 1) {
-						removePieceZoneOfControl.add(pieceMove);
-					}
-				}
-			}
-		}
-		Timer.stop("check movable4");
+		// =================================================================
+//		Timer.start("check movable4", "analyzePieceZoneOfControlManager");
+//		for (PieceMove pieceMove : pieceZoneOfControl.getList()) {
+//			PieceType pieceType = pieceMove.toPiece.type;
+//
+//			if (pieceType instanceof Fu) {
+//				if (player.getDirection() == Direction.UP) {
+//					if (pieceMove.to.y == 0) {
+//						removePieceZoneOfControl.add(pieceMove);
+//					}
+//				} else {
+//					if (pieceMove.to.y == HonShogiField.MAX_Y) {
+//						removePieceZoneOfControl.add(pieceMove);
+//					}
+//				}
+//			} else if (pieceType instanceof Kyo) {
+//				if (player.getDirection() == Direction.UP) {
+//					if (pieceMove.to.y == 0) {
+//						removePieceZoneOfControl.add(pieceMove);
+//					}
+//				} else {
+//					if (pieceMove.to.y == HonShogiField.MAX_Y) {
+//						removePieceZoneOfControl.add(pieceMove);
+//					}
+//				}
+//			} else if (pieceType instanceof Keima) {
+//				if (player.getDirection() == Direction.UP) {
+//					if (pieceMove.to.y <= 1) {
+//						removePieceZoneOfControl.add(pieceMove);
+//					}
+//				} else {
+//					if (pieceMove.to.y >= HonShogiField.MAX_Y - 1) {
+//						removePieceZoneOfControl.add(pieceMove);
+//					}
+//				}
+//			}
+//		}
+//		Timer.stop("check movable4");
 
 		// 移動不可分は削除
 		for (PieceMove pieceMove : removePieceZoneOfControl) {
 			pieceZoneOfControl.remove(pieceMove);
 		}
+		for (PieceMove pieceMove : stockPieceZoneOfControl) {
+			pieceZoneOfControl.add(pieceMove);
+		}
+
 	}
 }

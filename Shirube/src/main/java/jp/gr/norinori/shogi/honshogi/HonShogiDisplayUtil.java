@@ -30,8 +30,6 @@ public class HonShogiDisplayUtil {
 
 		List<String> displayList = new ArrayList<>();
 
-		// HonShogi honShogi = (HonShogi)
-		// scene.getGameInformation().getGameProtocol();
 		HonShogiField field = scene.getField();
 
 		displayList.add("手番：" + scene.getInitiativePlayer().getName());

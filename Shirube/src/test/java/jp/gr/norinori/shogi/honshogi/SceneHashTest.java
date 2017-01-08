@@ -1,12 +1,17 @@
 package jp.gr.norinori.shogi.honshogi;
 
+import static org.junit.Assert.assertEquals;
+
 import java.math.BigInteger;
+import java.util.List;
 
 import org.junit.Test;
 
 import jp.gr.norinori.shogi.GameInformation;
 import jp.gr.norinori.shogi.GameProtocol;
 import jp.gr.norinori.shogi.Logger;
+import jp.gr.norinori.shogi.PieceMove;
+import jp.gr.norinori.shogi.Point;
 
 public class SceneHashTest {
 
@@ -156,17 +161,77 @@ public class SceneHashTest {
 		HonShogiSceneHash.loadScene("BKuGdsAU4YXJH====UJYY=n/3j=Qw9q=QGSP=BlPBOdHcV", scene);
 		System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
 		System.out.println(scene.getInitiativePlayer().getName());
+	}
 
+	// 王手に対して香が打てないバグ
+	@Test
+	public void testAction1() {
+		Logger.useDebug = true;
 
-		scene = new HonShogiScene(gameInformation);
+		GameInformation gameInformation = new GameInformation();
+		GameProtocol gameProtocol = new HonShogi();
+		gameInformation.setGameProtocol(gameProtocol);
 
-		// 王手に対して香が打てないバグ
+		HonShogiScene scene = new HonShogiScene(gameInformation);
+
 		HonShogiSceneHash.loadScene("GWaU0HNXUrcmXzRMmETyb1h2RCnilIiufeqE=E5GJO=HJD", scene);
 		gameProtocol.analyzeScene(scene);
+
+		System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
+		System.out.println(scene.getPieceZoneOfControl(scene.getInitiativePlayer()));
+	}
+
+	// 王手が無視されるバグ
+	@Test
+	public void testAction2() {
+		Logger.useDebug = true;
+
+		GameInformation gameInformation = new GameInformation();
+		GameProtocol gameProtocol = new HonShogi();
+		gameInformation.setGameProtocol(gameProtocol);
+
+		HonShogiScene scene = new HonShogiScene(gameInformation);
+
+		HonShogiSceneHash.loadScene("EZ32lHzV1pXUDT===BRwtVBIp0vEnZE3dmTT=BJfga=Byn", scene);
+		gameProtocol.analyzeScene(scene);
+
+		System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
+		System.out.println(scene.getPieceZoneOfControl(scene.getInitiativePlayer()));
+	}
+
+	// 王手が無視されるバグ
+	@Test
+	public void testAction3() {
+		Logger.useDebug = true;
+
+		GameInformation gameInformation = new GameInformation();
+		GameProtocol gameProtocol = new HonShogi();
+		gameInformation.setGameProtocol(gameProtocol);
+
+		HonShogiScene scene = new HonShogiScene(gameInformation);
+
+		HonShogiSceneHash.loadScene("EmPhtu2vrf68RFByWVNUr=jeTr=aEGf=CIsbaBIQBUoBBL", scene);
+		gameProtocol.analyzeScene(scene);
+
 		System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
 		System.out.println(scene.getPieceZoneOfControl(scene.getInitiativePlayer()));
 
-		scene = new HonShogiScene(gameInformation);
+		HonShogiPieceZoneOfControl outePieceZoneOfControl = scene
+				.getOuteEscapePieceZoneOfControls(scene.getInitiativePlayer());
+//		System.out.println(outePieceZoneOfControl);
+
+		List<PieceMove> actualOuteEscape = outePieceZoneOfControl.getList();
+		Point[] expectPoints = new Point[3];
+		expectPoints[0] = new Point(3, 7);
+		expectPoints[1] = new Point(5, 7);
+		expectPoints[2] = new Point(3, 7);
+		for (int i = 0; i < expectPoints.length; i++) {
+			Point actualPoint = actualOuteEscape.get(i).to;
+			assertEquals(expectPoints[i], actualPoint);
+		}
+
+		assertEquals("王", actualOuteEscape.get(0).fromPiece.name);
+		assertEquals("銀", actualOuteEscape.get(2).fromPiece.name);
 	}
 
 	public void testCombination() {

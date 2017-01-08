@@ -15,8 +15,23 @@ import jp.gr.norinori.shogi.PieceType;
 import jp.gr.norinori.shogi.Point;
 import jp.gr.norinori.utility.StringUtil;
 
+/**
+ *
+ * 本将棋設定
+ *
+ * @author nori
+ *
+ */
 public class HonshogiSettings {
 
+	// メソッド=================================================================
+	/**
+	 * 指定したファイルから局面を読み出す
+	 *
+	 * @param scene
+	 * @param settingsFile
+	 * @return
+	 */
 	public static boolean load(HonShogiScene scene, String settingsFile) {
 
 		HonShogiPlayer sente = (HonShogiPlayer) scene.getPlayers().get(HonShogiPlayer.SENTE);
@@ -86,6 +101,13 @@ public class HonshogiSettings {
 		return true;
 	}
 
+	/**
+	 * 局面をファイルへ出力
+	 *
+	 * @param scene
+	 * @param settingsFile
+	 * @return
+	 */
 	public static boolean write(HonShogiScene scene, String settingsFile) {
 
 		HonShogiPlayer sente = (HonShogiPlayer) scene.getPlayers().get(HonShogiPlayer.SENTE);

@@ -18,8 +18,10 @@ import jp.gr.norinori.utility.StringUtil;
 
 public class SimpleDataFormat implements DataFormat {
 
+	// メンバ===================================================================
 	private List<PieceMove> list = new ArrayList<>();
 
+	// メソッド=================================================================
 	/**
 	 *
 	 * @param dataFile データファイル
@@ -50,6 +52,12 @@ public class SimpleDataFormat implements DataFormat {
 		}
 	}
 
+	/**
+	 *
+	 * @param player
+	 * @param command
+	 * @return
+	 */
 	public static PieceMove analyzeCommand(Player player, String command) {
 		Point point = null;
 
@@ -92,6 +100,11 @@ public class SimpleDataFormat implements DataFormat {
 		return this.list;
 	}
 
+	/**
+	 *
+	 * @param action
+	 * @return
+	 */
 	public static String createCommand(Action action) {
 		if (action == null) {
 			return "";

@@ -29,6 +29,7 @@ public class HonShogiPieceZoneOfControl implements PieceZoneOfControl {
 	private NumberingMap<Piece, EffectiveRange> line;
 	private List<PieceMove> outeList;
 	private List<PieceMove> outeLine;
+	private List<PieceMove> outeBlockLine;
 	private int effectiveRangeSize;
 
 	// コンストラクタ===========================================================
@@ -44,6 +45,7 @@ public class HonShogiPieceZoneOfControl implements PieceZoneOfControl {
 		this.line = new NumberingHashMap<>(100);
 		this.outeList = new ArrayList<>();
 		this.outeLine = new ArrayList<>();
+		this.outeBlockLine = new ArrayList<>();
 	}
 
 	/**
@@ -103,6 +105,8 @@ public class HonShogiPieceZoneOfControl implements PieceZoneOfControl {
 		this.list.remove(pieceMove);
 		this.ouList.remove(pieceMove);
 		this.outeList.remove(pieceMove);
+		this.outeLine.remove(pieceMove);
+		this.outeBlockLine.remove(pieceMove);
 	}
 
 	/**
@@ -203,6 +207,15 @@ public class HonShogiPieceZoneOfControl implements PieceZoneOfControl {
 	}
 
 	/**
+	 * 王手軌道（王までの間）を取得する
+	 *
+	 * @return 軌道
+	 */
+	public List<PieceMove> getOuteBlockLine() {
+		return this.outeBlockLine;
+	}
+
+	/**
 	 * 軌道を取得する
 	 *
 	 * @return 軌道
@@ -218,6 +231,15 @@ public class HonShogiPieceZoneOfControl implements PieceZoneOfControl {
 	 */
 	public void addOuteLine(PieceMove pieceMove) {
 		this.outeLine.add(pieceMove);
+	}
+
+	/**
+	 * 王手軌道（王までの間）を追加する
+	 *
+	 * @param pieceMove 移動可能情報
+	 */
+	public void addOuteBlockLine(PieceMove pieceMove) {
+		this.outeBlockLine.add(pieceMove);
 	}
 
 	/**
@@ -281,10 +303,26 @@ public class HonShogiPieceZoneOfControl implements PieceZoneOfControl {
 			}
 			sb.append(System.lineSeparator());
 		}
+		if (!this.outeList.isEmpty()) {
+			sb.append(" ==== Oute List ===");
+			sb.append(System.lineSeparator());
+			for (PieceMove pieceMove : this.outeList) {
+				sb.append(pieceMove);
+				sb.append(System.lineSeparator());
+			}
+		}
 		if (!this.outeLine.isEmpty()) {
 			sb.append(" ==== Oute Line ===");
 			sb.append(System.lineSeparator());
 			for (PieceMove pieceMove : this.outeLine) {
+				sb.append(pieceMove);
+				sb.append(System.lineSeparator());
+			}
+		}
+		if (!this.outeBlockLine.isEmpty()) {
+			sb.append(" ==== Oute Block Line ===");
+			sb.append(System.lineSeparator());
+			for (PieceMove pieceMove : this.outeBlockLine) {
 				sb.append(pieceMove);
 				sb.append(System.lineSeparator());
 			}
@@ -301,6 +339,7 @@ public class HonShogiPieceZoneOfControl implements PieceZoneOfControl {
 		newPieceZoneOfControl.line = cloneEffectiveRangeMap(this.line);
 		newPieceZoneOfControl.outeList = clonePieceMoveList(this.outeList);
 		newPieceZoneOfControl.outeLine = clonePieceMoveList(this.outeLine);
+		newPieceZoneOfControl.outeBlockLine = clonePieceMoveList(this.outeBlockLine);
 		newPieceZoneOfControl.effectiveRangeSize = this.effectiveRangeSize;
 
 		return newPieceZoneOfControl;

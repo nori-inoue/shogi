@@ -3,6 +3,13 @@ package jp.gr.norinori.shogi.honshogi;
 import jp.gr.norinori.shogi.Field;
 import jp.gr.norinori.shogi.Point;
 
+/**
+ *
+ * 本将棋盤面
+ *
+ * @author nori
+ *
+ */
 public class HonShogiField implements Field {
 
     // メンバ===================================================================
@@ -14,6 +21,7 @@ public class HonShogiField implements Field {
 	public byte x = MAX_X;
 	public byte y = MAX_Y;
 
+	// メソッド=================================================================
 	/**
 	 * 移動可能範囲確認
 	 *

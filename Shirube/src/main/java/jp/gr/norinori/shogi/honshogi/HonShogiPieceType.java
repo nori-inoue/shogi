@@ -25,8 +25,9 @@ import jp.gr.norinori.shogi.honshogi.piece.Uma;
  *
  */
 public abstract class HonShogiPieceType implements PieceType {
+	// メソッド=================================================================
 	/**
-	 * 成れるかを判定する。
+	 * 成れるかを判定する
 	 *
 	 * @param direction
 	 * @param point
@@ -54,6 +55,12 @@ public abstract class HonShogiPieceType implements PieceType {
 		return false;
 	}
 
+	/**
+	 * 本将棋駒タイプを生成する
+	 *
+	 * @param typeString タイプ文字
+	 * @return 本将棋駒タイプ
+	 */
 	public static HonShogiPieceType getPieceType(String typeString) {
 
 		switch (typeString) {
@@ -107,6 +114,12 @@ public abstract class HonShogiPieceType implements PieceType {
 		throw new IllegalArgumentException("No Piece Type " + typeString);
 	}
 
+	/**
+	 * 駒タイプ文字
+	 *
+	 * @param honShogiPiece 本将棋駒タイプ
+	 * @return 駒タイプ文字
+	 */
 	public static String getPieceName(PieceType honShogiPiece) {
 
 		if (honShogiPiece instanceof Fu) {

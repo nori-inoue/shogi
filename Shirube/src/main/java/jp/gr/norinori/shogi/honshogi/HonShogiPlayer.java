@@ -12,10 +12,18 @@ import jp.gr.norinori.shogi.PieceType;
 import jp.gr.norinori.shogi.Player;
 import jp.gr.norinori.shogi.Point;
 
+/**
+ *
+ * 本将棋プレイヤー
+ *
+ * @author nori
+ *
+ */
 public class HonShogiPlayer implements Player {
 	public final static int SENTE = 1;
 	public final static int GOTE = 2;
 
+	// メンバ===================================================================
 	private int playerid;
 	private String name;
 	private PieceLocations pieceLocations;
@@ -23,15 +31,25 @@ public class HonShogiPlayer implements Player {
 	private Direction direction;
 	private ActionEngine actionEngine;
 
+	// コンストラクタ===========================================================
+	/**
+	 * 本将棋局面のインスタンスを生成する
+	 *
+	 * @param playerid プレイヤーID
+	 */
 	public HonShogiPlayer(int playerid) {
 		this.pieceLocations = new PieceLocations();
 		this.stocks = new NumberingHashMap<>();
 		this.playerid = playerid;
 	}
 
+	/**
+	 * 本将棋局面のインスタンスを生成する
+	 */
 	protected HonShogiPlayer() {
 	}
 
+	// メソッド=================================================================
 	@Override
 	public int getId() {
 		return this.playerid;
@@ -123,6 +141,9 @@ public class HonShogiPlayer implements Player {
 		return this.actionEngine;
 	}
 
+	/**
+	 * クローン
+	 */
 	public Player clone() {
 		HonShogiPlayer newPlayer = new HonShogiPlayer();
 		newPlayer.playerid = this.playerid;

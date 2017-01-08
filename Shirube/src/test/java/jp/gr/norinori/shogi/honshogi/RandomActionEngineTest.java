@@ -121,7 +121,7 @@ public class RandomActionEngineTest {
 		Logger.logTimer(Timer.getTreeTimeids());
 	}
 
-	// 王手ラインが無視されるバグO
+	// 王手ラインが無視されるバグ
 	@Test
 	public void testAction6() {
 		Logger.useDebug = true;

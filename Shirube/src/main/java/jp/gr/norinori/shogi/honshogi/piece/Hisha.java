@@ -37,10 +37,8 @@ public class Hisha extends HonShogiPieceType {
 
 			newPoint.x -= i * diff;
 
-			// 盤の範囲内の場合は軌道を追加する
-			if (HonShogiField.isRange(newPoint)) {
-				pieceZoneOfControlManager.addLine(newPoint);
-			}
+			// 軌道を追加する
+			pieceZoneOfControlManager.addLine(newPoint);
 
 			if (!isBreak) {
 				if (!pieceZoneOfControlManager.validateAndAdd(newPoint, pieceZoneOfControlManager.piece)) {
@@ -91,10 +89,8 @@ public class Hisha extends HonShogiPieceType {
 
 			newPoint.y -= i * diff;
 
-			// 盤の範囲内の場合は軌道を追加する
-			if (HonShogiField.isRange(newPoint)) {
-				pieceZoneOfControlManager.addLine(newPoint);
-			}
+			// 軌道を追加する
+			pieceZoneOfControlManager.addLine(newPoint);
 
 			if (!isBreak) {
 				if (!pieceZoneOfControlManager.validateAndAdd(newPoint, pieceZoneOfControlManager.piece)) {

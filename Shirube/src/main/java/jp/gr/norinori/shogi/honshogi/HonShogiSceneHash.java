@@ -33,6 +33,7 @@ import jp.gr.norinori.shogi.honshogi.piece.Uma;
  */
 public class HonShogiSceneHash {
 
+	// メソッド=================================================================
 	public static String getHash(HonShogiScene scene) {
 		int[] fu = new int[18];
 		int fuCount = 0;

@@ -25,6 +25,7 @@ import jp.gr.norinori.shogi.honshogiengine.RandomActionEngine;
  *
  */
 public class HonShogiScene implements Scene {
+	// メンバ===================================================================
 	private HonShogiField honShogiField;
 
 	private GameInformation gameInformation;
@@ -34,6 +35,12 @@ public class HonShogiScene implements Scene {
 	private Map<Player, HonShogiPieceZoneOfControl> pieceZoneOfControls;
 	private Map<Player, HonShogiPieceZoneOfControl> outeEscapePieceZoneOfControls;
 
+	// コンストラクタ===========================================================
+	/**
+	 * 本将棋局面のインスタンスを生成する
+	 *
+	 * @param gameInformation
+	 */
 	public HonShogiScene(GameInformation gameInformation) {
 		this.gameInformation = gameInformation;
 		this.pieceZoneOfControls = new HashMap<>();
@@ -55,11 +62,18 @@ public class HonShogiScene implements Scene {
 		this.players.put(HonShogiPlayer.GOTE, gote);
 	}
 
+	/**
+	 * 本将棋局面のインスタンスを生成する
+	 */
 	protected HonShogiScene() {
 		this.pieceZoneOfControls = new HashMap<>();
 		this.outeEscapePieceZoneOfControls = new HashMap<>();
 	}
 
+	// メソッド=================================================================
+	/**
+	 * 盤面を取得する
+	 */
 	public HonShogiField getField() {
 		return this.honShogiField;
 	}
@@ -164,6 +178,11 @@ public class HonShogiScene implements Scene {
 		return this.outeEscapePieceZoneOfControls.get(player);
 	}
 
+	@Override
+	public String getHash() {
+		return HonShogiSceneHash.getHash(this);
+	}
+
 	/**
 	 * 局面のクローン
 	 */
@@ -205,11 +224,6 @@ public class HonShogiScene implements Scene {
 			newMap.put(player, en.getValue().clone());
 		}
 		return newMap;
-	}
-
-	@Override
-	public String getHash() {
-		return HonShogiSceneHash.getHash(this);
 	}
 
 }

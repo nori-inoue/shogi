@@ -80,75 +80,40 @@ public class HonShogi implements GameProtocol {
 
 	@Override
 	public ActionStatus analyzeScene(Scene scene) {
+		LoggerLabel.analyzePieceZoneOfControl = Timer.start("analyzePieceZoneOfControl", "analyzeScene",
+				LoggerLabel.analyzePieceZoneOfControl);
 		this.analyzer.analyzePieceZoneOfControl(scene);
-		return analyzeOute((HonShogiScene) scene);
+		Timer.stop(LoggerLabel.analyzePieceZoneOfControl);
+
+		LoggerLabel.analyzeOute = Timer.start("analyzeOute", "analyzeScene", LoggerLabel.analyzeOute);
+		HonShogiActionStatus status = analyzeOute((HonShogiScene) scene);
+		Timer.stop(LoggerLabel.analyzeOute);
+
+		return status;
 	}
 
-	/**
-	 * 王手ライン生成する
-	 *
-	 * @param pieceZoneOfControls ZOC情報
-	 * @param player 手番プレイヤー
-	 * @param otherPlayer 相手プレイヤー
-	 * @param ouPoint 王位置
-	 * @return 王手ライン
-	 */
-	public static List<List<Point>> getOuteline(HonShogiPieceZoneOfControl pieceZoneOfControls, HonShogiPlayer player,
-			HonShogiPlayer otherPlayer, Point ouPoint) {
-
-		List<List<Point>> outeLines = new ArrayList<>();
-		List<Point> outeLine = new ArrayList<>();
-		Point outeLinePoint = null;
-		Point preFromPoint = null;
-		for (PieceMove pieceZoneOfControl : pieceZoneOfControls.getOuteLine()) {
-			if (preFromPoint == null || !pieceZoneOfControl.from.equals(preFromPoint)) {
-				outeLine = new ArrayList<>();
-				outeLine.add(pieceZoneOfControl.from);
-			}
-			preFromPoint = pieceZoneOfControl.from;
-			outeLinePoint = pieceZoneOfControl.to;
-
-			// 相手駒が間にあれば王手ラインなし
-			if (otherPlayer != null && otherPlayer.getPieceLocations().existsPiece(outeLinePoint)) {
-				outeLine = new ArrayList<>();
-				continue;
-			}
-
-			// 間の自駒があれば王手ラインはなし
-			if (player != null && player.getPieceLocations().existsPiece(outeLinePoint)) {
-				outeLine = new ArrayList<>();
-				continue;
-			}
-
-			if (outeLinePoint.equals(ouPoint)) {
-				outeLines.add(outeLine);
-				outeLine = new ArrayList<>();
-			}
-			outeLine.add(outeLinePoint);
-		}
-		return outeLines;
-	}
-
-	private boolean canEscape(HonShogiScene scene, PieceMove pieceMove) {
+	private boolean canEscape(HonShogiScene scene, PieceMove outPieceMove) {
 		HonShogiPlayer player = scene.getInitiativePlayer();
 		HonShogiPlayer otherPlayer = scene.getOtherPlayer();
 
+		HonShogiPieceZoneOfControl otherPieceZoneOfControl = (HonShogiPieceZoneOfControl) scene
+				.getPieceZoneOfControl(otherPlayer);
+
 		boolean existsOtherPiece = false;
-		for (Entry<Piece, EffectiveRange> en : scene.getPieceZoneOfControl(otherPlayer).getEffectiveRanges()
-				.entrySet()) {
+		for (Entry<Piece, EffectiveRange> en : otherPieceZoneOfControl.getEffectiveRanges().entrySet()) {
 			EffectiveRange effectiveRange = en.getValue();
 			for (Point effectivePoint : effectiveRange.list) {
-				if (effectivePoint.equals(pieceMove.to)) {
+				if (effectivePoint.equals(outPieceMove.to)) {
 					existsOtherPiece = true;
-					Logger.debug("脱出不可：" + pieceMove.to + " <= " + en.getKey());
+					Logger.debug("脱出不可：" + outPieceMove.to + " <= " + en.getKey());
 					break;
 				}
 			}
 		}
 
 		if (!existsOtherPiece) {
-			Logger.debug("脱出ポイント：" + pieceMove.to);
-			scene.addOuteEscapePieceZoneOfControl(player, pieceMove);
+			Logger.debug("脱出ポイント：" + outPieceMove.to);
+			scene.addOuteEscapePieceZoneOfControl(player, outPieceMove);
 			return true;
 		}
 		return false;
@@ -166,14 +131,12 @@ public class HonShogi implements GameProtocol {
 		// 王手判定
 		Timer.start("oute", "analyzeOute");
 		NumberingMap<Piece, Point> outePieces = new NumberingHashMap<>();
-		Point ouPoint = null;
 		for (PieceMove pieceMove : honShogeiScene.getPieceZoneOfControl(otherPlayer).getList()) {
 			Piece piece = player.getPiece(pieceMove.to);
 			if (piece != null && piece.type instanceof Ou) {
 				status.message = "王手";
 				status.isOute = true;
 				outePieces.put(pieceMove.fromPiece, pieceMove.from);
-				ouPoint = pieceMove.to;
 				Logger.debug("王手 " + pieceMove.fromPiece);
 			}
 		}
@@ -187,8 +150,8 @@ public class HonShogi implements GameProtocol {
 			// 王の移動範囲をチェック
 			HonShogiPieceZoneOfControl honShogiPieceZoneOfControl = (HonShogiPieceZoneOfControl) honShogeiScene
 					.getPieceZoneOfControl(player);
-			for (PieceMove pieceZoneOfControl : honShogiPieceZoneOfControl.getOuList()) {
-				if (canEscape(honShogeiScene, pieceZoneOfControl)) {
+			for (PieceMove pieceMove : honShogiPieceZoneOfControl.getOuList()) {
+				if (canEscape(honShogeiScene, pieceMove)) {
 					isTumi = false;
 				}
 			}
@@ -208,66 +171,47 @@ public class HonShogi implements GameProtocol {
 				Timer.start("getOuteline", "outePieces");
 				HonShogiPieceZoneOfControl otherHonShogiPieceZoneOfControl = (HonShogiPieceZoneOfControl) honShogeiScene
 						.getPieceZoneOfControl(otherPlayer);
-				List<List<Point>> outeLines = getOuteline(otherHonShogiPieceZoneOfControl, player, otherPlayer,
-						ouPoint);
+				List<PieceMove> outeBlockLine = otherHonShogiPieceZoneOfControl.getOuteBlockLine();
 				Timer.stop("getOuteline");
 
 				// 移動可能範囲ありなら詰みでない
 				Timer.start("outePoint", "outePieces");
 				oute_range: for (PieceMove pieceMove : honShogeiScene.getPieceZoneOfControl(player).getList()) {
-					// 自駒が王手の駒を取得可能な場合かつその駒が王手軌道にない場合、その駒で取得可能
-					if (pieceMove.to.equals(outePoint) && !(pieceMove.toPiece.type instanceof Ou)) {
-						for (List<Point> outeLine : outeLines) {
-							for (Point p : outeLine) {
-								if (p.equals(pieceMove.from)) {
-									continue oute_range;
-								}
+					// 自駒が王手の駒を取得可能な場合かつその駒が他の王手軌道にない場合、その駒で取得可能
+					if (pieceMove.to.equals(outePoint) && !(pieceMove.fromPiece.type instanceof Ou)) {
+						for (PieceMove outePieceMove : outeBlockLine) {
+							if (!outePieceMove.from.equals(outePoint) && outePieceMove.to.equals(pieceMove.from)) {
+								continue oute_range;
 							}
 						}
 						isTumi = false;
 						Logger.debug("取れる駒：" + pieceMove.from + ":" + pieceMove.fromPiece);
 						honShogeiScene.addOuteEscapePieceZoneOfControl(player, pieceMove);
+
+					} else if (!(pieceMove.fromPiece.type instanceof Ou)) {
+
+						// 自駒が王手軌道に移動かつその駒が他の王手軌道にない場合、その駒でブロック可能
+						boolean isExists = false;
+						for (PieceMove outePieceMove : outeBlockLine) {
+							// 他の王手軌道にあればブロック不可
+							if (!outePieceMove.from.equals(outePoint) && outePieceMove.to.equals(pieceMove.from)) {
+								continue oute_range;
+							}
+							// 該当の王手軌道に移動可
+							if (outePieceMove.from.equals(outePoint) && outePieceMove.to.equals(pieceMove.to)) {
+								isExists = true;
+							}
+						}
+						if (!isExists) {
+							continue oute_range;
+						}
+
+						isTumi = false;
+						Logger.debug("止める駒：" + pieceMove.from + ":" + pieceMove.toPiece);
+						honShogeiScene.addOuteEscapePieceZoneOfControl(player, pieceMove);
 					}
 				}
 				Timer.stop("outePoint");
-
-				// 間に移動可能範囲ありなら詰みでない
-				Timer.start("blockPoint", "outePieces");
-				if (outePiece.type instanceof Hisha || outePiece.type instanceof Ryu || outePiece.type instanceof Kaku
-						|| outePiece.type instanceof Uma || outePiece.type instanceof Kyo) {
-					int diffX = Math.abs(outePoint.x - ouPoint.x);
-					int diffY = Math.abs(outePoint.y - ouPoint.y);
-
-					Point blockPoint = outePoint.clone();
-					int dx = 0;
-					int dy = 0;
-					if (outePoint.x > ouPoint.x) {
-						dx = -1;
-					} else if (outePoint.x < ouPoint.x) {
-						dx = 1;
-					}
-					if (outePoint.y > ouPoint.y) {
-						dy = -1;
-					} else if (outePoint.y < ouPoint.y) {
-						dy = 1;
-					}
-					int diff = Math.max(diffX, diffY);
-
-					for (int d = 0; d < diff; d++) {
-						blockPoint.x += dx;
-						blockPoint.y += dy;
-						for (PieceMove pieceZoneOfControl : honShogeiScene.getPieceZoneOfControl(player).getList()) {
-							if (pieceZoneOfControl.to.equals(blockPoint)
-									&& !(pieceZoneOfControl.toPiece.type instanceof Ou)) {
-								isTumi = false;
-								Logger.debug("止める駒：" + blockPoint + ":" + pieceZoneOfControl.toPiece);
-								honShogeiScene.addOuteEscapePieceZoneOfControl(player, pieceZoneOfControl);
-								// break;
-							}
-						}
-					}
-				}
-				Timer.stop("blockPoint");
 			}
 			Timer.stop("outePieces");
 		}
