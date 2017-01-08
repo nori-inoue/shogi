@@ -233,14 +233,4 @@ public class SceneHashTest {
 		assertEquals("王", actualOuteEscape.get(0).fromPiece.name);
 		assertEquals("銀", actualOuteEscape.get(2).fromPiece.name);
 	}
-
-	public void testCombination() {
-		BigInteger result;
-
-		result = HonShogiSceneHash.combination(4, 2);
-		System.out.println(result);
-
-		result = HonShogiSceneHash.combination(5, 2);
-		System.out.println(result);
-	}
 }

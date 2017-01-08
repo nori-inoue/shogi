@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Map;
 
+import jp.gr.norinori.Math;
 import jp.gr.norinori.core.element.KeyValuePair;
 import jp.gr.norinori.shogi.NumberBase64;
 import jp.gr.norinori.shogi.Piece;
@@ -73,7 +74,8 @@ public class HonShogiSceneHash {
 
 					// 手番情報を王の成情報に乗せる
 					if (player.getId() == HonShogiPlayer.SENTE) {
-						ou[ouCount++] = createHash(player, pieceLocations.getKey(), scene.getInitiativePlayer().getId() - 1);
+						ou[ouCount++] = createHash(player, pieceLocations.getKey(),
+								scene.getInitiativePlayer().getId() - 1);
 					} else {
 						ou[ouCount++] = createHash(player, pieceLocations.getKey());
 					}
@@ -177,7 +179,7 @@ public class HonShogiSceneHash {
 	public static BigInteger createHash(int table[], int size) {
 		BigInteger hash = BigInteger.ZERO;
 		for (int i = table.length - 1; i >= 0; i--) {
-			hash = hash.add(combination(table[i], i + 1));
+			hash = hash.add(Math.combination(table[i], i + 1));
 		}
 		return hash;
 	}
@@ -200,7 +202,8 @@ public class HonShogiSceneHash {
 		loadPieces(hash, 43, 3, 2, 7, scene);
 	}
 
-	private static void loadPieces(String hash, int position, int hashLength, int length, int type, HonShogiScene scene) {
+	private static void loadPieces(String hash, int position, int hashLength, int length, int type,
+			HonShogiScene scene) {
 		int points[];
 		Player sente = scene.getPlayers().get(HonShogiPlayer.SENTE);
 		Player gote = scene.getPlayers().get(HonShogiPlayer.GOTE);
@@ -301,64 +304,12 @@ public class HonShogiSceneHash {
 		BigInteger v = value;
 		for (int i = 0; i < r; i++) {
 			for (int j = n - 1 - i; j >= 0; j--) {
-				BigInteger max = combination(j, r - i);
+				BigInteger max = Math.combination(j, r - i);
 				if (max.compareTo(v) <= 0) {
 					v = v.subtract(max);
 					result[r - 1 - i] = j;
 					break;
 				}
-			}
-		}
-
-		return result;
-	}
-
-	/**
-	 *
-	 * 入山徳夫氏アルゴリズム
-	 *
-	 * @param n
-	 * @param r
-	 * @return 組み合わせ数 nCr
-	 */
-	public static BigInteger combination(int n, int r) {
-		if (n < 0 || r < 0 || r > n) {
-			return BigInteger.ZERO;
-		}
-
-		if (n - r < r) {
-			r = n - r;
-		}
-		if (r == 0) {
-			return BigInteger.ONE;
-		}
-		if (r == 1) {
-			return BigInteger.valueOf(n);
-		}
-
-		int[] numerator = new int[r];
-		int[] denominator = new int[r];
-
-		for (int k = 0; k < r; k++) {
-			numerator[k] = n - r + k + 1;
-			denominator[k] = k + 1;
-		}
-
-		for (int p = 2; p <= r; p++) {
-			int pivot = denominator[p - 1];
-			if (pivot > 1) {
-				int offset = (n - r) % p;
-				for (int k = p - 1; k < r; k += p) {
-					numerator[k - offset] /= pivot;
-					denominator[k] /= pivot;
-				}
-			}
-		}
-
-		BigInteger result = BigInteger.ONE;
-		for (int k = 0; k < r; k++) {
-			if (numerator[k] > 1) {
-				result = result.multiply(BigInteger.valueOf(numerator[k]));
 			}
 		}
 
