@@ -6,6 +6,7 @@ import jp.gr.norinori.shogi.honshogi.HonShogiPieceType;
 import jp.gr.norinori.shogi.honshogi.PieceZoneOfControlManager;
 
 public class Uma extends HonShogiPieceType {
+	public final static int ID = 13;
 
 	@Override
 	public boolean addPieceLocations(PieceZoneOfControlManager pieceZoneOfControlManager) {
@@ -63,6 +64,6 @@ public class Uma extends HonShogiPieceType {
 
 	@Override
 	public int hashCode() {
-		return 13;
+		return ID;
 	}
 }

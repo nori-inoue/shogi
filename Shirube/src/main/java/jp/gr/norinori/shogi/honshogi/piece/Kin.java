@@ -6,6 +6,7 @@ import jp.gr.norinori.shogi.honshogi.HonShogiPieceType;
 import jp.gr.norinori.shogi.honshogi.PieceZoneOfControlManager;
 
 public class Kin extends HonShogiPieceType {
+	public final static int ID = 5;
 
 	@Override
 	public boolean addPieceLocations(PieceZoneOfControlManager pieceZoneOfControlManager) {
@@ -55,6 +56,6 @@ public class Kin extends HonShogiPieceType {
 
 	@Override
 	public int hashCode() {
-		return 5;
+		return ID;
 	}
 }

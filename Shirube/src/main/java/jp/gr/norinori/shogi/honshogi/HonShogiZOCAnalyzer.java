@@ -27,28 +27,29 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 		HonShogiPlayer player = honShogeiScene.getInitiativePlayer();
 		HonShogiPlayer otherPlayer = honShogeiScene.getOtherPlayer();
 
-		Timer.start("analyzePieceZoneOfControls");
+		honShogeiScene.clearExistsPiece(); // 駒の位置有無情報をクリア
+
 		// 自駒移動可能範囲を求める
-		Timer.start("analyzePieceZoneOfControls initiative", "analyzePieceZoneOfControls");
+		LoggerLabel.createPieceZoneOfControlManager = Timer.start("createPieceZoneOfControlManager",
+				"analyzePieceZoneOfControl", LoggerLabel.createPieceZoneOfControlManager);
 		PieceZoneOfControlManager pieceZoneOfControlManager = createPieceZoneOfControlManager(honShogeiScene, player,
 				otherPlayer);
-		Timer.stop("analyzePieceZoneOfControls initiative");
 
 		// 相手駒移動可能範囲を求める
-		Timer.start("analyzePieceZoneOfControls other", "analyzePieceZoneOfControls");
 		PieceZoneOfControlManager otherPieceZoneOfControlManager = createPieceZoneOfControlManager(honShogeiScene,
 				otherPlayer, player);
-		Timer.stop("analyzePieceZoneOfControls other");
+		Timer.stop(LoggerLabel.createPieceZoneOfControlManager);
 
-		Timer.stop("analyzePieceZoneOfControls");
-
-		Timer.start("analyzePieceZoneOfControlManager");
+		LoggerLabel.analyzePieceZoneOfControlManager = Timer.start("analyzePieceZoneOfControlManager",
+				"analyzePieceZoneOfControl", LoggerLabel.analyzePieceZoneOfControlManager);
 		// 自駒移動可能範囲を駒の状況による移動可能範囲を解析
-		analyzePieceZoneOfControls(pieceZoneOfControlManager, otherPieceZoneOfControlManager, player, otherPlayer);
+		analyzePieceZoneOfControls(honShogeiScene, pieceZoneOfControlManager, otherPieceZoneOfControlManager, player,
+				otherPlayer);
 
 		// 相手駒移動可能範囲を駒の状況による移動可能範囲を解析
-		analyzePieceZoneOfControls(otherPieceZoneOfControlManager, pieceZoneOfControlManager, otherPlayer, player);
-		Timer.stop("analyzePieceZoneOfControlManager");
+		analyzePieceZoneOfControls(honShogeiScene, otherPieceZoneOfControlManager, pieceZoneOfControlManager,
+				otherPlayer, player);
+		Timer.stop(LoggerLabel.analyzePieceZoneOfControlManager);
 
 		scene.setPieceZoneOfControl(player, pieceZoneOfControlManager.pieceZoneOfControl);
 		scene.setPieceZoneOfControl(otherPlayer, otherPieceZoneOfControlManager.pieceZoneOfControl);
@@ -57,28 +58,33 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 	// 移動可能範囲を解析する
 	private PieceZoneOfControlManager createPieceZoneOfControlManager(HonShogiScene scene, HonShogiPlayer player,
 			HonShogiPlayer otherPlayer) {
-		Timer.start("pieceZoneOfControlManager", "analyzePieceZoneOfControls");
+		LoggerLabel.pieceZoneOfControlManager = Timer.start("pieceZoneOfControlManager",
+				"createPieceZoneOfControlManager", LoggerLabel.pieceZoneOfControlManager);
 		PieceZoneOfControlManager pieceZoneOfControlManager = new PieceZoneOfControlManager(scene, player, otherPlayer);
-		Timer.stop("pieceZoneOfControlManager");
+		Timer.stop(LoggerLabel.pieceZoneOfControlManager);
 
 		for (Pair<Point, Piece> pair : pieceZoneOfControlManager.pieceLocations) {
 			Point point = pair.getFirst();
 			Piece piece = pair.getSecond();
 
-			Timer.start("setCurrent", "analyzePieceZoneOfControls");
+			LoggerLabel.setCurrent = Timer.start("setCurrent", "createPieceZoneOfControlManager",
+					LoggerLabel.setCurrent);
 			pieceZoneOfControlManager.setCurrent(point, piece);
-			Timer.stop("setCurrent");
+			Timer.stop(LoggerLabel.setCurrent);
 
-			Timer.start("addPieceLocations", "analyzePieceZoneOfControls");
+			LoggerLabel.addPieceLocations = Timer.start("addPieceLocations", "createPieceZoneOfControlManager",
+					LoggerLabel.addPieceLocations);
 			((HonShogiPieceType) piece.type).addPieceLocations(pieceZoneOfControlManager);
-			Timer.stop("addPieceLocations");
+
+			scene.setExistsPiece(point);
+			Timer.stop(LoggerLabel.addPieceLocations);
 		}
 
 		return pieceZoneOfControlManager;
 	}
 
 	// 駒の状況による移動可能範囲を解析する
-	private void analyzePieceZoneOfControls(PieceZoneOfControlManager pieceZoneOfControlManager,
+	private void analyzePieceZoneOfControls(HonShogiScene scene, PieceZoneOfControlManager pieceZoneOfControlManager,
 			PieceZoneOfControlManager otherPieceZoneOfControlManager, HonShogiPlayer player,
 			HonShogiPlayer otherPlayer) {
 
@@ -101,20 +107,12 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 			endKeimaIndex = (byte) (HonShogiField.MAX_Y - 2);
 		}
 
-		// 打ち込み可能
-		Map<Point, Piece> existsMap = new HashMap<>();
-
 		// 二歩打ち禁止
 		Map<Byte, Piece> fuMap = new HashMap<>();
 		for (Pair<Point, Piece> pair : pieceZoneOfControlManager.pieceLocations) {
 			if (pair.getSecond().type instanceof Fu) {
 				fuMap.put(pair.getFirst().x, pair.getSecond());
 			}
-			existsMap.put(pair.getFirst(), pair.getSecond());
-		}
-
-		for (Pair<Point, Piece> pair : otherPieceZoneOfControlManager.pieceLocations) {
-			existsMap.put(pair.getFirst(), pair.getSecond());
 		}
 
 		for (PieceType pieceType : player.getStockList()) {
@@ -135,9 +133,12 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 
 			Piece piece = HonShogi.createPiece(player, (HonShogiPieceType) pieceType);
 			for (byte x = 0; x <= HonShogiField.MAX_X; x++) {
+				if ((pieceType instanceof Fu && fuMap.containsKey(x))) {
+					continue;
+				}
 				for (byte y = startIndex; y <= endIndex; y++) {
 					Point newPoint = new Point(x, y);
-					if (!existsMap.containsKey(newPoint) && (!(pieceType instanceof Fu) || !fuMap.containsKey(x))) {
+					if (!scene.existsPiece(newPoint)) {
 						PieceMove pieceMove = new PieceMove(null, newPoint, piece, piece);
 						stockPieceZoneOfControl.add(pieceMove);
 					}
@@ -196,44 +197,43 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 		Timer.stop("check movable3");
 
 		// 移動不可範囲の抽出
-		// =================================================================
-//		Timer.start("check movable4", "analyzePieceZoneOfControlManager");
-//		for (PieceMove pieceMove : pieceZoneOfControl.getList()) {
-//			PieceType pieceType = pieceMove.toPiece.type;
-//
-//			if (pieceType instanceof Fu) {
-//				if (player.getDirection() == Direction.UP) {
-//					if (pieceMove.to.y == 0) {
-//						removePieceZoneOfControl.add(pieceMove);
-//					}
-//				} else {
-//					if (pieceMove.to.y == HonShogiField.MAX_Y) {
-//						removePieceZoneOfControl.add(pieceMove);
-//					}
-//				}
-//			} else if (pieceType instanceof Kyo) {
-//				if (player.getDirection() == Direction.UP) {
-//					if (pieceMove.to.y == 0) {
-//						removePieceZoneOfControl.add(pieceMove);
-//					}
-//				} else {
-//					if (pieceMove.to.y == HonShogiField.MAX_Y) {
-//						removePieceZoneOfControl.add(pieceMove);
-//					}
-//				}
-//			} else if (pieceType instanceof Keima) {
-//				if (player.getDirection() == Direction.UP) {
-//					if (pieceMove.to.y <= 1) {
-//						removePieceZoneOfControl.add(pieceMove);
-//					}
-//				} else {
-//					if (pieceMove.to.y >= HonShogiField.MAX_Y - 1) {
-//						removePieceZoneOfControl.add(pieceMove);
-//					}
-//				}
-//			}
-//		}
-//		Timer.stop("check movable4");
+		Timer.start("check movable4", "analyzePieceZoneOfControlManager");
+		for (PieceMove pieceMove : pieceZoneOfControl.getList()) {
+			HonShogiPieceType pieceType = (HonShogiPieceType) pieceMove.toPiece.type;
+
+			if (pieceType.hashCode() == Fu.ID) {
+				if (player.getDirection() == Direction.UP) {
+					if (pieceMove.to.y == 0) {
+						removePieceZoneOfControl.add(pieceMove);
+					}
+				} else {
+					if (pieceMove.to.y == HonShogiField.MAX_Y) {
+						removePieceZoneOfControl.add(pieceMove);
+					}
+				}
+			} else if (pieceType.hashCode() == Kyo.ID) {
+				if (player.getDirection() == Direction.UP) {
+					if (pieceMove.to.y == 0) {
+						removePieceZoneOfControl.add(pieceMove);
+					}
+				} else {
+					if (pieceMove.to.y == HonShogiField.MAX_Y) {
+						removePieceZoneOfControl.add(pieceMove);
+					}
+				}
+			} else if (pieceType.hashCode() == Keima.ID) {
+				if (player.getDirection() == Direction.UP) {
+					if (pieceMove.to.y <= 1) {
+						removePieceZoneOfControl.add(pieceMove);
+					}
+				} else {
+					if (pieceMove.to.y >= HonShogiField.MAX_Y - 1) {
+						removePieceZoneOfControl.add(pieceMove);
+					}
+				}
+			}
+		}
+		Timer.stop("check movable4");
 
 		// 移動不可分は削除
 		for (PieceMove pieceMove : removePieceZoneOfControl) {

@@ -14,6 +14,7 @@ import jp.gr.norinori.shogi.honshogi.HonShogi;
 import jp.gr.norinori.shogi.honshogi.HonShogiActionStatus;
 import jp.gr.norinori.shogi.honshogi.HonShogiPieceZoneOfControl;
 import jp.gr.norinori.shogi.honshogi.HonShogiScene;
+import jp.gr.norinori.shogi.honshogi.LoggerLabel;
 import jp.gr.norinori.shogi.honshogi.piece.Fu;
 
 public class RandomActionEngine implements ActionEngine {
@@ -22,7 +23,7 @@ public class RandomActionEngine implements ActionEngine {
 
 	@Override
 	public Action action(Scene scene) {
-		Timer.start("pieceZoneOfControls", "action");
+		LoggerLabel.pieceZoneOfControl = Timer.start("pieceZoneOfControl", "action", LoggerLabel.pieceZoneOfControl);
 		Player player = scene.getInitiativePlayer();
 
 		HonShogiPieceZoneOfControl pieceZoneOfControl;
@@ -41,19 +42,20 @@ public class RandomActionEngine implements ActionEngine {
 			status.message = "移動可能駒なし：投了";
 			return action;
 		}
-		Timer.stop("pieceZoneOfControls");
+		Timer.stop(LoggerLabel.pieceZoneOfControl);
 
-		Timer.start("checkTumi", "action");
+		LoggerLabel.checkTumi = Timer.start("checkTumi", "action", LoggerLabel.checkTumi);
 		HonShogi honshogi = (HonShogi) scene.getGameInformation().getGameProtocol();
 		for (PieceMove pieceMove : pieceZoneOfControl.getList()) {
 			Action checkAction = new Action();
 			checkAction.setFromPieceMove(pieceMove);
-			Timer.start("scene clone", "checkTumi");
+			LoggerLabel.sceneClone = Timer.start("scene clone", "checkTumi", LoggerLabel.sceneClone);
 			HonShogiScene checkScene = (HonShogiScene) scene.clone();
-			Timer.stop("scene clone");
-			Timer.start("nextPhage checkScene", "checkTumi");
+			Timer.stop(LoggerLabel.sceneClone);
+
+			LoggerLabel.analyzeSceneCheckTumi = Timer.start("analyzeScene checkTumi", "checkTumi");
 			HonShogiActionStatus checkStatus = (HonShogiActionStatus) honshogi.nextPhage(checkScene, checkAction);
-			Timer.stop("nextPhage checkScene");
+			Timer.stop(LoggerLabel.analyzeSceneCheckTumi);
 
 			if (checkStatus.isTumi) {
 				// 打ち歩詰め禁止
@@ -66,7 +68,7 @@ public class RandomActionEngine implements ActionEngine {
 				return checkAction;
 			}
 		}
-		Timer.stop("checkTumi");
+		Timer.stop(LoggerLabel.checkTumi);
 
 		Random random = new Random();
 		int index = random.nextInt(pieceZoneOfControl.getList().size());

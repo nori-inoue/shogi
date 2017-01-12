@@ -8,6 +8,8 @@ import jp.gr.norinori.shogi.honshogi.HonShogiPieceType;
 import jp.gr.norinori.shogi.honshogi.PieceZoneOfControlManager;
 
 public class Gin extends HonShogiPieceType {
+	public final static int ID = 4;
+
 	@Override
 	public boolean addPieceLocations(PieceZoneOfControlManager pieceZoneOfControlManager) {
 		Direction direction = pieceZoneOfControlManager.player.getDirection();
@@ -74,6 +76,6 @@ public class Gin extends HonShogiPieceType {
 
 	@Override
 	public int hashCode() {
-		return 4;
+		return ID;
 	}
 }

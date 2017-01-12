@@ -6,6 +6,7 @@ import jp.gr.norinori.shogi.honshogi.HonShogiPieceType;
 import jp.gr.norinori.shogi.honshogi.PieceZoneOfControlManager;
 
 public class Narikyo extends HonShogiPieceType {
+	public final static int ID = 9;
 
 	@Override
 	public boolean addPieceLocations(PieceZoneOfControlManager pieceZoneOfControlManager) {
@@ -55,6 +56,6 @@ public class Narikyo extends HonShogiPieceType {
 
 	@Override
 	public int hashCode() {
-		return 9;
+		return ID;
 	}
 }

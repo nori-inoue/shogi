@@ -78,4 +78,11 @@ public interface Scene {
 	 * @return
 	 */
 	public String getHash();
+
+	/**
+	 *
+	 * @param point
+	 * @return true:盤面に駒が存在する false:盤面に駒が存在しない
+	 */
+	public boolean existsPiece(Point point);
 }

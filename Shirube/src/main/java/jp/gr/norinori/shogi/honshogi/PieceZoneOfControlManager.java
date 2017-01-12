@@ -4,15 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jp.gr.norinori.core.element.KeyValuePair;
-import jp.gr.norinori.shogi.Direction;
 import jp.gr.norinori.shogi.Piece;
 import jp.gr.norinori.shogi.PieceLocations;
 import jp.gr.norinori.shogi.PieceMove;
 import jp.gr.norinori.shogi.Point;
 import jp.gr.norinori.shogi.Timer;
-import jp.gr.norinori.shogi.honshogi.piece.Fu;
-import jp.gr.norinori.shogi.honshogi.piece.Keima;
-import jp.gr.norinori.shogi.honshogi.piece.Kyo;
 import jp.gr.norinori.shogi.honshogi.piece.Ou;
 
 /**
@@ -178,39 +174,6 @@ public class PieceZoneOfControlManager {
 	 * @return true:移動可能 / false:移動終了
 	 */
 	public boolean validateAndAdd(Point newPoint, Piece newPiece) {
-
-		// 駒の移動位置判定
-		if (newPiece.type instanceof Fu) {
-			if (this.player.getDirection() == Direction.UP) {
-				if (newPoint.y == 0) {
-					return false;
-				}
-			} else {
-				if (newPoint.y == HonShogiField.MAX_Y) {
-					return false;
-				}
-			}
-		} else if (newPiece.type instanceof Kyo) {
-			if (this.player.getDirection() == Direction.UP) {
-				if (newPoint.y == 0) {
-					return false;
-				}
-			} else {
-				if (newPoint.y == HonShogiField.MAX_Y) {
-					return false;
-				}
-			}
-		} else if (newPiece.type instanceof Keima) {
-			if (this.player.getDirection() == Direction.UP) {
-				if (newPoint.y <= 1) {
-					return false;
-				}
-			} else {
-				if (newPoint.y >= HonShogiField.MAX_Y - 1) {
-					return false;
-				}
-			}
-		}
 		// 盤面位置の判定
 		if (!HonShogiField.isRange(newPoint)) {
 			return false;

@@ -152,28 +152,31 @@ public class HonShogiPieceZoneOfControl implements PieceZoneOfControl {
 	 * @param piece 駒
 	 */
 	public void addEffectiveRange(Point point, Piece piece) {
-		Timer.start("get", "addEffectiveRange");
+		LoggerLabel.getAddEffectiveRange = Timer.start("get", "addEffectiveRange", LoggerLabel.getAddEffectiveRange);
 		EffectiveRange effectiveRange = this.effectiveRanges.get(piece);
 		if (effectiveRange == null) {
 			effectiveRange = new EffectiveRange();
 		}
-		Timer.stop("get");
-		Timer.start("add", "addEffectiveRange");
+		Timer.stop("LoggerLabel.getAddEffectiveRange");
+
+		LoggerLabel.addAddEffectiveRange = Timer.start("add", "addEffectiveRange", LoggerLabel.addAddEffectiveRange);
 		effectiveRange.add(point);
-		Timer.stop("add");
-		Timer.start("put", "addEffectiveRange");
+		Timer.stop(LoggerLabel.addAddEffectiveRange);
+
+		LoggerLabel.putAddEffectiveRange = Timer.start("put", "addEffectiveRange", LoggerLabel.putAddEffectiveRange);
 		this.effectiveRanges.put(piece, effectiveRange);
-		Timer.stop("put");
+		Timer.stop(LoggerLabel.putAddEffectiveRange);
 		this.effectiveRangeSize++;
 
-		Timer.start("effectiveRangePoint", "addEffectiveRange");
+		LoggerLabel.effectiveRangePoint = Timer.start("effectiveRangePoint", "addEffectiveRange",
+				LoggerLabel.effectiveRangePoint);
 		Integer count = Integer.valueOf(1);
 		if (this.effectiveRangePoint.containsKey(point)) {
 			count = this.effectiveRangePoint.get(point);
 			count++;
 		}
 		this.effectiveRangePoint.put(point, count);
-		Timer.stop("effectiveRangePoint");
+		Timer.stop(LoggerLabel.effectiveRangePoint);
 	}
 
 	/**
@@ -183,16 +186,20 @@ public class HonShogiPieceZoneOfControl implements PieceZoneOfControl {
 	 * @param piece 駒
 	 */
 	public void setEffectiveRangeSource(Point point, Piece piece) {
-		Timer.start("get", "setEffectiveRangeSource");
+		LoggerLabel.getSetEffectiveRangeSource = Timer.start("get", "setEffectiveRangeSource",
+				LoggerLabel.getSetEffectiveRangeSource);
 		EffectiveRange effectiveRange = this.effectiveRanges.get(piece);
-		Timer.stop("get");
+		Timer.stop(LoggerLabel.getSetEffectiveRangeSource);
+
 		if (effectiveRange == null) {
-			Timer.start("new", "setEffectiveRangeSource");
+			LoggerLabel.newSetEffectiveRangeSource = Timer.start("new", "setEffectiveRangeSource",
+					LoggerLabel.newSetEffectiveRangeSource);
 			effectiveRange = new EffectiveRange();
-			Timer.stop("new");
-			Timer.start("put", "setEffectiveRangeSource");
+			Timer.stop(LoggerLabel.newSetEffectiveRangeSource);
+
+			LoggerLabel.putetEffectiveRangeSource = Timer.start("put", "setEffectiveRangeSource");
 			this.effectiveRanges.put(piece, effectiveRange);
-			Timer.stop("put");
+			Timer.stop(LoggerLabel.putetEffectiveRangeSource);
 		}
 		effectiveRange.source = point;
 	}

@@ -14,6 +14,7 @@ import jp.gr.norinori.shogi.PieceLocations;
 import jp.gr.norinori.shogi.PieceMove;
 import jp.gr.norinori.shogi.PieceZoneOfControl;
 import jp.gr.norinori.shogi.Player;
+import jp.gr.norinori.shogi.Point;
 import jp.gr.norinori.shogi.Scene;
 import jp.gr.norinori.shogi.honshogiengine.RandomActionEngine;
 
@@ -34,6 +35,7 @@ public class HonShogiScene implements Scene {
 	private NumberingMap<Integer, Player> players;
 	private Map<Player, HonShogiPieceZoneOfControl> pieceZoneOfControls;
 	private Map<Player, HonShogiPieceZoneOfControl> outeEscapePieceZoneOfControls;
+	private boolean[] pieceLocations;
 
 	// コンストラクタ===========================================================
 	/**
@@ -60,6 +62,8 @@ public class HonShogiScene implements Scene {
 		this.players = new NumberingHashMap<>();
 		this.players.put(HonShogiPlayer.SENTE, sente);
 		this.players.put(HonShogiPlayer.GOTE, gote);
+
+		clearExistsPiece();
 	}
 
 	/**
@@ -135,7 +139,7 @@ public class HonShogiScene implements Scene {
 
 	@Override
 	public void setPieceZoneOfControl(Player player, PieceZoneOfControl pieceZoneOfControl) {
-		this.pieceZoneOfControls.put(player, (HonShogiPieceZoneOfControl)pieceZoneOfControl);
+		this.pieceZoneOfControls.put(player, (HonShogiPieceZoneOfControl) pieceZoneOfControl);
 	}
 
 	@Override
@@ -183,6 +187,32 @@ public class HonShogiScene implements Scene {
 		return HonShogiSceneHash.getHash(this);
 	}
 
+	@Override
+	public boolean existsPiece(Point point) {
+		int location = point.x * HonShogiField.MAX_X + point.y;
+		return this.pieceLocations[location];
+	}
+
+	/**
+	 * 駒が存在する位置を設定
+	 *
+	 * @param point 駒が存在する位置
+	 */
+	public void setExistsPiece(Point point) {
+		int location = point.x * HonShogiField.MAX_X + point.y;
+		this.pieceLocations[location] = true;
+	}
+
+	/**
+	 * 駒が存在する位置をクリア
+	 */
+	public void clearExistsPiece() {
+		this.pieceLocations = new boolean[(HonShogiField.MAX_X + 1) * (HonShogiField.MAX_Y + 1)];
+		for (int i = 0; i < this.pieceLocations.length; i++) {
+			this.pieceLocations[i] = false;
+		}
+	}
+
 	/**
 	 * 局面のクローン
 	 */
@@ -207,11 +237,14 @@ public class HonShogiScene implements Scene {
 		honShogeiScene.outeEscapePieceZoneOfControls = clonePieceZoneOfControlMap(this.outeEscapePieceZoneOfControls,
 				honShogeiScene.initiativePlayer, honShogeiScene.otherPlayer);
 
+		honShogeiScene.pieceLocations = this.pieceLocations;
+
 		return honShogeiScene;
 	}
 
 	private Map<Player, HonShogiPieceZoneOfControl> clonePieceZoneOfControlMap(
-			Map<Player, HonShogiPieceZoneOfControl> pieceZoneOfControlMap, Player initiativePlayer, Player otherPlayer) {
+			Map<Player, HonShogiPieceZoneOfControl> pieceZoneOfControlMap, Player initiativePlayer,
+			Player otherPlayer) {
 		Map<Player, HonShogiPieceZoneOfControl> newMap = new HashMap<>(pieceZoneOfControlMap.size());
 
 		for (Entry<Player, HonShogiPieceZoneOfControl> en : pieceZoneOfControlMap.entrySet()) {
