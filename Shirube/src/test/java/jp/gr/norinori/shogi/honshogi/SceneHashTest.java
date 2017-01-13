@@ -216,11 +216,7 @@ public class SceneHashTest {
 		System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
 		System.out.println(scene.getPieceZoneOfControl(scene.getInitiativePlayer()));
 
-		HonShogiPieceZoneOfControl outePieceZoneOfControl = scene
-				.getOuteEscapePieceZoneOfControls(scene.getInitiativePlayer());
-//		System.out.println(outePieceZoneOfControl);
-
-		List<PieceMove> actualOuteEscape = outePieceZoneOfControl.getList();
+		List<PieceMove> actualOuteEscape = scene.getOuteEscapeList(scene.getInitiativePlayer());
 		Point[] expectPoints = new Point[3];
 		expectPoints[0] = new Point(3, 7);
 		expectPoints[1] = new Point(5, 7);

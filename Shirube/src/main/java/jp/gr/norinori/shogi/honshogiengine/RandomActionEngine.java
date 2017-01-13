@@ -1,5 +1,6 @@
 package jp.gr.norinori.shogi.honshogiengine;
 
+import java.util.List;
 import java.util.Random;
 
 import jp.gr.norinori.shogi.Action;
@@ -12,7 +13,6 @@ import jp.gr.norinori.shogi.Scene;
 import jp.gr.norinori.shogi.Timer;
 import jp.gr.norinori.shogi.honshogi.HonShogi;
 import jp.gr.norinori.shogi.honshogi.HonShogiActionStatus;
-import jp.gr.norinori.shogi.honshogi.HonShogiPieceZoneOfControl;
 import jp.gr.norinori.shogi.honshogi.HonShogiScene;
 import jp.gr.norinori.shogi.honshogi.LoggerLabel;
 import jp.gr.norinori.shogi.honshogi.piece.Fu;
@@ -26,17 +26,16 @@ public class RandomActionEngine implements ActionEngine {
 		LoggerLabel.pieceZoneOfControl = Timer.start("pieceZoneOfControl", "action", LoggerLabel.pieceZoneOfControl);
 		Player player = scene.getInitiativePlayer();
 
-		HonShogiPieceZoneOfControl pieceZoneOfControl;
-		HonShogiPieceZoneOfControl outePieceZoneOfControl = ((HonShogiScene) scene)
-				.getOuteEscapePieceZoneOfControls(player);
-		if (outePieceZoneOfControl != null && !outePieceZoneOfControl.isEmpty()) {
-			pieceZoneOfControl = outePieceZoneOfControl;
+		List<PieceMove> movableList;
+		List<PieceMove> outePieceMoveList = ((HonShogiScene) scene).getOuteEscapeList(player);
+		if (outePieceMoveList != null && !outePieceMoveList.isEmpty()) {
+			movableList = outePieceMoveList;
 		} else {
-			pieceZoneOfControl = (HonShogiPieceZoneOfControl) scene.getPieceZoneOfControl(player);
+			movableList = scene.getPieceZoneOfControl(player).getList();
 		}
 
 		Action action = new Action();
-		if (pieceZoneOfControl.isEmpty()) {
+		if (movableList.isEmpty()) {
 			ActionStatus status = new HonShogiActionStatus();
 			status.isEnd = true;
 			status.message = "移動可能駒なし：投了";
@@ -46,7 +45,7 @@ public class RandomActionEngine implements ActionEngine {
 
 		LoggerLabel.checkTumi = Timer.start("checkTumi", "action", LoggerLabel.checkTumi);
 		HonShogi honshogi = (HonShogi) scene.getGameInformation().getGameProtocol();
-		for (PieceMove pieceMove : pieceZoneOfControl.getList()) {
+		for (PieceMove pieceMove : movableList) {
 			Action checkAction = new Action();
 			checkAction.setFromPieceMove(pieceMove);
 			LoggerLabel.sceneClone = Timer.start("scene clone", "checkTumi", LoggerLabel.sceneClone);
@@ -63,7 +62,7 @@ public class RandomActionEngine implements ActionEngine {
 					continue;
 				}
 
-				Logger.debug(pieceZoneOfControl.toString());
+				Logger.debug(movableList.toString());
 				Logger.debug("選択:詰みあり " + pieceMove);
 				return checkAction;
 			}
@@ -71,10 +70,10 @@ public class RandomActionEngine implements ActionEngine {
 		Timer.stop(LoggerLabel.checkTumi);
 
 		Random random = new Random();
-		int index = random.nextInt(pieceZoneOfControl.getList().size());
-		PieceMove pieceMove = pieceZoneOfControl.getList().get(index);
+		int index = random.nextInt(movableList.size());
+		PieceMove pieceMove = movableList.get(index);
 
-		Logger.debug(pieceZoneOfControl.toString());
+		Logger.debug(movableList.toString());
 		Logger.debug("選択:" + index + " " + pieceMove);
 		action.setFromPieceMove(pieceMove);
 

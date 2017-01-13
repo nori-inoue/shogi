@@ -113,7 +113,7 @@ public class HonShogi implements GameProtocol {
 
 		if (!existsOtherPiece) {
 			Logger.debug("脱出ポイント：" + outPieceMove.to);
-			scene.addOuteEscapePieceZoneOfControl(player, outPieceMove);
+			scene.addOuteEscape(player, outPieceMove);
 			return true;
 		}
 		return false;
@@ -126,7 +126,7 @@ public class HonShogi implements GameProtocol {
 		HonShogiPlayer otherPlayer = honShogeiScene.getOtherPlayer();
 
 		// 王手コントロールはクリア
-		honShogeiScene.clearOuteEscapePieceZoneOfControls();
+		honShogeiScene.clearOuteEscape();
 
 		// 王手判定
 		Timer.start("oute", "analyzeOute");
@@ -186,7 +186,7 @@ public class HonShogi implements GameProtocol {
 						}
 						isTumi = false;
 						Logger.debug("取れる駒：" + pieceMove.from + ":" + pieceMove.fromPiece);
-						honShogeiScene.addOuteEscapePieceZoneOfControl(player, pieceMove);
+						honShogeiScene.addOuteEscape(player, pieceMove);
 
 					} else if (!(pieceMove.fromPiece.type instanceof Ou)) {
 
@@ -208,7 +208,7 @@ public class HonShogi implements GameProtocol {
 
 						isTumi = false;
 						Logger.debug("止める駒：" + pieceMove.from + ":" + pieceMove.toPiece);
-						honShogeiScene.addOuteEscapePieceZoneOfControl(player, pieceMove);
+						honShogeiScene.addOuteEscape(player, pieceMove);
 					}
 				}
 				Timer.stop("outePoint");

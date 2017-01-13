@@ -34,7 +34,7 @@ public class HonShogiScene implements Scene {
 	private HonShogiPlayer otherPlayer;
 	private NumberingMap<Integer, Player> players;
 	private Map<Player, HonShogiPieceZoneOfControl> pieceZoneOfControls;
-	private Map<Player, HonShogiPieceZoneOfControl> outeEscapePieceZoneOfControls;
+	private Map<Player, List<PieceMove>> outeEscapeMap;
 	private boolean[] pieceLocations;
 
 	// コンストラクタ===========================================================
@@ -46,7 +46,7 @@ public class HonShogiScene implements Scene {
 	public HonShogiScene(GameInformation gameInformation) {
 		this.gameInformation = gameInformation;
 		this.pieceZoneOfControls = new HashMap<>();
-		this.outeEscapePieceZoneOfControls = new HashMap<>();
+		this.outeEscapeMap = new HashMap<>();
 		this.honShogiField = new HonShogiField();
 
 		HonShogiPlayer sente = new HonShogiPlayer(HonShogiPlayer.SENTE);
@@ -71,7 +71,7 @@ public class HonShogiScene implements Scene {
 	 */
 	protected HonShogiScene() {
 		this.pieceZoneOfControls = new HashMap<>();
-		this.outeEscapePieceZoneOfControls = new HashMap<>();
+		this.outeEscapeMap = new HashMap<>();
 	}
 
 	// メソッド=================================================================
@@ -150,8 +150,8 @@ public class HonShogiScene implements Scene {
 	/**
 	 * 王手ZOC情報をクリアする
 	 */
-	public void clearOuteEscapePieceZoneOfControls() {
-		this.outeEscapePieceZoneOfControls = new HashMap<>();
+	public void clearOuteEscape() {
+		this.outeEscapeMap = new HashMap<>();
 	}
 
 	/**
@@ -160,16 +160,16 @@ public class HonShogiScene implements Scene {
 	 * @param player
 	 * @param pieceMove
 	 */
-	public void addOuteEscapePieceZoneOfControl(Player player, PieceMove pieceMove) {
-		HonShogiPieceZoneOfControl pieceZoneOfControl;
-		if (this.outeEscapePieceZoneOfControls.containsKey(player)) {
-			pieceZoneOfControl = getOuteEscapePieceZoneOfControls(player);
+	public void addOuteEscape(Player player, PieceMove pieceMove) {
+		List<PieceMove> piecMoveList;
+		if (this.outeEscapeMap.containsKey(player)) {
+			piecMoveList = getOuteEscapeList(player);
 		} else {
-			pieceZoneOfControl = new HonShogiPieceZoneOfControl();
+			piecMoveList = new ArrayList<PieceMove>();
 		}
-		pieceZoneOfControl.add(pieceMove);
+		piecMoveList.add(pieceMove);
 
-		this.outeEscapePieceZoneOfControls.put(player, pieceZoneOfControl);
+		this.outeEscapeMap.put(player, piecMoveList);
 	}
 
 	/**
@@ -178,8 +178,8 @@ public class HonShogiScene implements Scene {
 	 * @param player
 	 * @return 王手ZOC情報
 	 */
-	public HonShogiPieceZoneOfControl getOuteEscapePieceZoneOfControls(Player player) {
-		return this.outeEscapePieceZoneOfControls.get(player);
+	public List<PieceMove> getOuteEscapeList(Player player) {
+		return this.outeEscapeMap.get(player);
 	}
 
 	@Override
@@ -234,8 +234,8 @@ public class HonShogiScene implements Scene {
 
 		honShogeiScene.pieceZoneOfControls = clonePieceZoneOfControlMap(this.pieceZoneOfControls,
 				honShogeiScene.initiativePlayer, honShogeiScene.otherPlayer);
-		honShogeiScene.outeEscapePieceZoneOfControls = clonePieceZoneOfControlMap(this.outeEscapePieceZoneOfControls,
-				honShogeiScene.initiativePlayer, honShogeiScene.otherPlayer);
+		honShogeiScene.outeEscapeMap = clonePieceMoveMap(this.outeEscapeMap, honShogeiScene.initiativePlayer,
+				honShogeiScene.otherPlayer);
 
 		honShogeiScene.pieceLocations = this.pieceLocations;
 
@@ -259,4 +259,27 @@ public class HonShogiScene implements Scene {
 		return newMap;
 	}
 
+	private Map<Player, List<PieceMove>> clonePieceMoveMap(Map<Player, List<PieceMove>> pieceMoveMap,
+			Player initiativePlayer, Player otherPlayer) {
+		Map<Player, List<PieceMove>> newMap = new HashMap<>(pieceMoveMap.size());
+
+		for (Entry<Player, List<PieceMove>> en : pieceMoveMap.entrySet()) {
+			Player player;
+			if (en.getKey().getId() == initiativePlayer.getId()) {
+				player = initiativePlayer;
+			} else {
+				player = otherPlayer;
+			}
+			newMap.put(player, clonePieceMoveList(en.getValue()));
+		}
+		return newMap;
+	}
+
+	private List<PieceMove> clonePieceMoveList(List<PieceMove> pieceMoveList) {
+		List<PieceMove> list = new ArrayList<>();
+		for (PieceMove pieceMove : pieceMoveList) {
+			list.add(pieceMove.clone());
+		}
+		return list;
+	}
 }
