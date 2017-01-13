@@ -61,7 +61,7 @@ public class Main {
 
 		Timer.start("initializeGame", "total");
 		Scene scene = initializeGame(gameInformation);
-		gameProtocol.nextPhage(scene, null);
+		gameProtocol.analyzeScene(scene);
 		Timer.stop("initializeGame");
 
 		List<Pair<Action, String>> hisotry;
