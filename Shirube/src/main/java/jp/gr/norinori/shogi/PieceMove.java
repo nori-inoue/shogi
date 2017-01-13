@@ -6,10 +6,10 @@ package jp.gr.norinori.shogi;
  * @author nori
  */
 public class PieceMove {
-	public Point from;
-	public Point to;
-	public Piece fromPiece;
-	public Piece toPiece;
+	public final Point from;
+	public final Point to;
+	public final Piece fromPiece;
+	public final Piece toPiece;
 
 	// コンストラクタ===========================================================
 	/**
@@ -36,14 +36,6 @@ public class PieceMove {
 		this.to = to;
 		this.fromPiece = fromPiece;
 		this.toPiece = toPiece;
-	}
-
-	public PieceMove clone() {
-		if (this.from != null) {
-			return new PieceMove(this.from.clone(), this.to.clone(), this.fromPiece.clone(),
-					this.toPiece.clone());
-		}
-		return new PieceMove(this.from, this.to.clone(), this.fromPiece, this.toPiece.clone());
 	}
 
 	@Override

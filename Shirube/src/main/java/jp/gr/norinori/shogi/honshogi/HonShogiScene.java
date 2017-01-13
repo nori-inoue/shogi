@@ -16,6 +16,7 @@ import jp.gr.norinori.shogi.PieceZoneOfControl;
 import jp.gr.norinori.shogi.Player;
 import jp.gr.norinori.shogi.Point;
 import jp.gr.norinori.shogi.Scene;
+import jp.gr.norinori.shogi.Timer;
 import jp.gr.norinori.shogi.honshogiengine.RandomActionEngine;
 
 /**
@@ -35,7 +36,7 @@ public class HonShogiScene implements Scene {
 	private NumberingMap<Integer, Player> players;
 	private Map<Player, HonShogiPieceZoneOfControl> pieceZoneOfControls;
 	private Map<Player, List<PieceMove>> outeEscapeMap;
-	private boolean[] pieceLocations;
+	private boolean[][] pieceLocations;
 
 	// コンストラクタ===========================================================
 	/**
@@ -189,8 +190,7 @@ public class HonShogiScene implements Scene {
 
 	@Override
 	public boolean existsPiece(Point point) {
-		int location = point.x * HonShogiField.MAX_X + point.y;
-		return this.pieceLocations[location];
+		return this.pieceLocations[point.x][point.y];
 	}
 
 	/**
@@ -199,18 +199,14 @@ public class HonShogiScene implements Scene {
 	 * @param point 駒が存在する位置
 	 */
 	public void setExistsPiece(Point point) {
-		int location = point.x * HonShogiField.MAX_X + point.y;
-		this.pieceLocations[location] = true;
+		this.pieceLocations[point.x][point.y] = true;
 	}
 
 	/**
 	 * 駒が存在する位置をクリア
 	 */
 	public void clearExistsPiece() {
-		this.pieceLocations = new boolean[(HonShogiField.MAX_X + 1) * (HonShogiField.MAX_Y + 1)];
-		for (int i = 0; i < this.pieceLocations.length; i++) {
-			this.pieceLocations[i] = false;
-		}
+		this.pieceLocations = new boolean[HonShogiField.MAX_X + 1][HonShogiField.MAX_Y + 1];
 	}
 
 	/**
@@ -220,8 +216,10 @@ public class HonShogiScene implements Scene {
 		HonShogiScene honShogeiScene = new HonShogiScene();
 		honShogeiScene.gameInformation = this.gameInformation;
 		honShogeiScene.honShogiField = this.honShogiField;
+		Timer.start("player clone", "scene clone");
 		honShogeiScene.initiativePlayer = (HonShogiPlayer) this.initiativePlayer.clone();
 		honShogeiScene.otherPlayer = (HonShogiPlayer) this.otherPlayer.clone();
+		Timer.stop("player clone");
 
 		honShogeiScene.players = new NumberingHashMap<>();
 		if (honShogeiScene.initiativePlayer.getId() == HonShogiPlayer.SENTE) {
@@ -232,10 +230,14 @@ public class HonShogiScene implements Scene {
 			honShogeiScene.players.put(HonShogiPlayer.GOTE, honShogeiScene.initiativePlayer);
 		}
 
+		Timer.start("clonePieceZoneOfControlMap", "scene clone");
 		honShogeiScene.pieceZoneOfControls = clonePieceZoneOfControlMap(this.pieceZoneOfControls,
 				honShogeiScene.initiativePlayer, honShogeiScene.otherPlayer);
+		Timer.stop("clonePieceZoneOfControlMap");
+		Timer.start("clonePieceMoveMap", "scene clone");
 		honShogeiScene.outeEscapeMap = clonePieceMoveMap(this.outeEscapeMap, honShogeiScene.initiativePlayer,
 				honShogeiScene.otherPlayer);
+		Timer.stop("clonePieceMoveMap");
 
 		honShogeiScene.pieceLocations = this.pieceLocations;
 
@@ -276,10 +278,7 @@ public class HonShogiScene implements Scene {
 	}
 
 	private List<PieceMove> clonePieceMoveList(List<PieceMove> pieceMoveList) {
-		List<PieceMove> list = new ArrayList<>();
-		for (PieceMove pieceMove : pieceMoveList) {
-			list.add(pieceMove.clone());
-		}
+		List<PieceMove> list = new ArrayList<>(pieceMoveList);
 		return list;
 	}
 }

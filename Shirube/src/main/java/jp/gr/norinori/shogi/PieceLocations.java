@@ -27,7 +27,7 @@ public class PieceLocations implements Iterable<KeyValuePair<Point, Piece>> {
 
 	public void putAll(PieceLocations pieceLocation) {
 		for (Entry<Point, Piece> en : pieceLocation.pieces.entrySet()) {
-			this.pieces.put(en.getKey(), en.getValue().clone());
+			this.pieces.put(en.getKey(), en.getValue());
 		}
 	}
 

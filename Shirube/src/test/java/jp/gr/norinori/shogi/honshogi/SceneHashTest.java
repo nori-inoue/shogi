@@ -1,17 +1,21 @@
 package jp.gr.norinori.shogi.honshogi;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import java.util.List;
 
 import org.junit.Test;
 
+import jp.gr.norinori.core.collection.TreeNode;
 import jp.gr.norinori.shogi.GameInformation;
 import jp.gr.norinori.shogi.GameProtocol;
 import jp.gr.norinori.shogi.Logger;
 import jp.gr.norinori.shogi.PieceMove;
 import jp.gr.norinori.shogi.Point;
+import jp.gr.norinori.shogi.Timer;
+import jp.gr.norinori.utility.StringUtil;
 
 public class SceneHashTest {
 
@@ -228,5 +232,99 @@ public class SceneHashTest {
 
 		assertEquals("王", actualOuteEscape.get(0).fromPiece.name);
 		assertEquals("銀", actualOuteEscape.get(2).fromPiece.name);
+	}
+
+	// 持ち駒で防げないバグ
+	@Test
+	public void testAction4() {
+		Logger.useDebug = true;
+
+		GameInformation gameInformation = new GameInformation();
+		GameProtocol gameProtocol = new HonShogi();
+		gameInformation.setGameProtocol(gameProtocol);
+
+		HonShogiScene scene = new HonShogiScene(gameInformation);
+
+		HonShogiSceneHash.loadScene("IciauRUt+dsGov===VNns=CG4npR44n=Wv7f=BX9OwcBIc", scene);
+		gameProtocol.analyzeScene(scene);
+
+		System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
+		System.out.println(scene.getPieceZoneOfControl(scene.getInitiativePlayer()));
+
+		boolean isExists = false;
+		List<PieceMove> list = scene.getPieceZoneOfControl(scene.getInitiativePlayer()).getList();
+		for (PieceMove pieceMove : list) {
+			if (pieceMove.from == null && pieceMove.to.equals(new Point(5, 8))) {
+				isExists = true;
+				break;
+			}
+		}
+		assertTrue(isExists);
+
+		// List<PieceMove> actualOuteEscape =
+		// scene.getOuteEscapeList(scene.getInitiativePlayer());
+		// Point[] expectPoints = new Point[3];
+		// expectPoints[0] = new Point(3, 7);
+		// expectPoints[1] = new Point(5, 7);
+		// expectPoints[2] = new Point(3, 7);
+		// for (int i = 0; i < expectPoints.length; i++) {
+		// Point actualPoint = actualOuteEscape.get(i).to;
+		// assertEquals(expectPoints[i], actualPoint);
+		// }
+		//
+		// assertEquals("王", actualOuteEscape.get(0).fromPiece.name);
+		// assertEquals("銀", actualOuteEscape.get(2).fromPiece.name);
+	}
+
+	// 局面のクローンの速度調査
+	@Test
+	public void testSceneClone() {
+		GameInformation gameInformation = new GameInformation();
+		GameProtocol gameProtocol = new HonShogi();
+		gameInformation.setGameProtocol(gameProtocol);
+
+		HonShogiScene scene = new HonShogiScene(gameInformation);
+
+		HonShogiSceneHash.loadScene("EmPhtu2vrf68RFByWVNUr=jeTr=aEGf=CIsbaBIQBUoBBL", scene);
+		gameProtocol.analyzeScene(scene);
+
+		LoggerLabel.sceneClone = Timer.start("scene clone", LoggerLabel.sceneClone);
+		for (int i = 0; i < 50000; i++) {
+			scene = (HonShogiScene) scene.clone();
+		}
+		Timer.stop(LoggerLabel.sceneClone);
+
+		logTimer(Timer.getTreeTimeids());
+	}
+
+	/**
+	 * ツリーログ出力
+	 *
+	 * @param rootNode ルートノード
+	 */
+	private void logTimer(TreeNode<String> rootNode) {
+		for (TreeNode<String> node : rootNode.children()) {
+			logTimer(node, 0);
+		}
+	}
+
+	/**
+	 * ツリーログ出力
+	 *
+	 * @param node ノード
+	 * @param depth 深さ
+	 */
+	private void logTimer(TreeNode<String> node, int depth) {
+		String pad = "";
+		if (depth > 0) {
+			pad = StringUtil.pad(" ", depth * 2);
+		}
+		System.out
+				.println(pad + node.getValue() + ":" + StringUtil.formatNumber(Timer.getTotal(node.getValue()), "#,###")
+						+ "ms (" + StringUtil.formatNumber(Timer.getCount(node.getValue()), "#,###") + ")");
+
+		for (TreeNode<String> child : node.children()) {
+			logTimer(child, depth + 1);
+		}
 	}
 }

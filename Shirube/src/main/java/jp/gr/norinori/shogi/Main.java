@@ -39,12 +39,13 @@ public class Main {
 		}
 		Logger.useInfo = true;
 
-		Timer.start("total");
+		Timer.debug = false;
+		Timer.startInfo("total");
 		for (int i = 0; i < loop; i++) {
 			Main me = new Main();
 			me.run(arguments);
 		}
-		Timer.stop("total");
+		Timer.stopInfo("total");
 
 		Logger.logTimer(Timer.getTreeTimeids());
 	}

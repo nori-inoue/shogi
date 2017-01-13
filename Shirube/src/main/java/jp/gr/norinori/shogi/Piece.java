@@ -7,8 +7,8 @@ package jp.gr.norinori.shogi;
  *
  */
 public class Piece {
-	public PieceType type;
-	public String name;
+	public final PieceType type;
+	public final String name;
 
 	// コンストラクタ===========================================================
 	/**
@@ -25,9 +25,5 @@ public class Piece {
 	@Override
 	public String toString() {
 		return "Piece [name=" + name + "]";
-	}
-
-	public Piece clone() {
-		return new Piece(this.type.clone(), this.name);
 	}
 }

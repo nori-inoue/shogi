@@ -339,24 +339,37 @@ public class HonShogiPieceZoneOfControl implements PieceZoneOfControl {
 
 	public HonShogiPieceZoneOfControl clone() {
 		HonShogiPieceZoneOfControl newPieceZoneOfControl = new HonShogiPieceZoneOfControl();
+		Timer.start("list", "clonePieceZoneOfControlMap");
 		newPieceZoneOfControl.list = clonePieceMoveList(this.list);
+		Timer.stop("list");
+		Timer.start("ouList", "clonePieceZoneOfControlMap");
 		newPieceZoneOfControl.ouList = clonePieceMoveList(this.ouList);
+		Timer.stop("ouList");
+		Timer.start("effectiveRanges", "clonePieceZoneOfControlMap");
 		newPieceZoneOfControl.effectiveRanges = cloneEffectiveRangeMap(this.effectiveRanges);
+		Timer.stop("effectiveRanges");
+		Timer.start("effectiveRangePoint", "clonePieceZoneOfControlMap");
 		newPieceZoneOfControl.effectiveRangePoint = new HashMap<>(this.effectiveRangePoint);
+		Timer.stop("effectiveRangePoint");
+		Timer.start("line", "clonePieceZoneOfControlMap");
 		newPieceZoneOfControl.line = cloneEffectiveRangeMap(this.line);
+		Timer.stop("line");
+		Timer.start("outeList", "clonePieceZoneOfControlMap");
 		newPieceZoneOfControl.outeList = clonePieceMoveList(this.outeList);
+		Timer.stop("outeList");
+		Timer.start("outeLine", "clonePieceZoneOfControlMap");
 		newPieceZoneOfControl.outeLine = clonePieceMoveList(this.outeLine);
+		Timer.stop("outeLine");
+		Timer.start("outeBlockLine", "clonePieceZoneOfControlMap");
 		newPieceZoneOfControl.outeBlockLine = clonePieceMoveList(this.outeBlockLine);
+		Timer.stop("outeBlockLine");
 		newPieceZoneOfControl.effectiveRangeSize = this.effectiveRangeSize;
 
 		return newPieceZoneOfControl;
 	}
 
 	private List<PieceMove> clonePieceMoveList(List<PieceMove> pieceMoveList) {
-		List<PieceMove> list = new ArrayList<>();
-		for (PieceMove pieceMove : pieceMoveList) {
-			list.add(pieceMove.clone());
-		}
+		List<PieceMove> list = new ArrayList<>(pieceMoveList);
 		return list;
 	}
 
@@ -365,7 +378,7 @@ public class HonShogiPieceZoneOfControl implements PieceZoneOfControl {
 		NumberingMap<Piece, EffectiveRange> newMap = new NumberingHashMap<>(effectiveRangeMap.size());
 
 		for (Entry<Piece, EffectiveRange> en : effectiveRangeMap.entrySet()) {
-			newMap.put(en.getKey().clone(), en.getValue().clone());
+			newMap.put(en.getKey(), en.getValue().clone());
 		}
 		return newMap;
 	}
