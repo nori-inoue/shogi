@@ -94,7 +94,7 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 		// 持駒の移動可能範囲を求める
 		// ===========================================================
 		Timer.start("check movable1", "analyzePieceZoneOfControlManager");
-		List<PieceMove> stockPieceZoneOfControl = new ArrayList<>();
+		List<PieceMove> stockPieceMoveList = new ArrayList<>();
 
 		byte startFuIndex = 1;
 		byte endFuIndex = HonShogiField.MAX_Y;
@@ -140,7 +140,7 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 					Point newPoint = new Point(x, y);
 					if (!scene.existsPiece(newPoint)) {
 						PieceMove pieceMove = new PieceMove(null, newPoint, piece, piece);
-						stockPieceZoneOfControl.add(pieceMove);
+						stockPieceMoveList.add(pieceMove);
 					}
 				}
 			}
@@ -150,7 +150,7 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 		// 王は相手の移動範囲に移動不可
 		// =================================================================
 		Timer.start("check movable2", "analyzePieceZoneOfControlManager");
-		List<PieceMove> removePieceZoneOfControl = new ArrayList<>();
+		List<PieceMove> removePieceMoveList = new ArrayList<>();
 
 		// 王手軌道を除外
 		Map<Point, Integer> effectiveRangePoint = otherPieceZoneOfControl.getEffectiveRangePoint();
@@ -162,7 +162,7 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 		for (PieceMove pieceMove : pieceZoneOfControl.getOuList()) {
 			// 影響範囲を除外
 			if (effectiveRangePoint.containsKey(pieceMove.to)) {
-				removePieceZoneOfControl.add(pieceMove);
+				removePieceMoveList.add(pieceMove);
 			}
 		}
 		Timer.stop("check movable2");
@@ -189,7 +189,7 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 						}
 					}
 					if (!existsMovable) {
-						removePieceZoneOfControl.add(pieceMove);
+						removePieceMoveList.add(pieceMove);
 					}
 				}
 			}
@@ -204,31 +204,31 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 			if (pieceType.hashCode() == Fu.ID) {
 				if (player.getDirection() == Direction.UP) {
 					if (pieceMove.to.y == 0) {
-						removePieceZoneOfControl.add(pieceMove);
+						removePieceMoveList.add(pieceMove);
 					}
 				} else {
 					if (pieceMove.to.y == HonShogiField.MAX_Y) {
-						removePieceZoneOfControl.add(pieceMove);
+						removePieceMoveList.add(pieceMove);
 					}
 				}
 			} else if (pieceType.hashCode() == Kyo.ID) {
 				if (player.getDirection() == Direction.UP) {
 					if (pieceMove.to.y == 0) {
-						removePieceZoneOfControl.add(pieceMove);
+						removePieceMoveList.add(pieceMove);
 					}
 				} else {
 					if (pieceMove.to.y == HonShogiField.MAX_Y) {
-						removePieceZoneOfControl.add(pieceMove);
+						removePieceMoveList.add(pieceMove);
 					}
 				}
 			} else if (pieceType.hashCode() == Keima.ID) {
 				if (player.getDirection() == Direction.UP) {
 					if (pieceMove.to.y <= 1) {
-						removePieceZoneOfControl.add(pieceMove);
+						removePieceMoveList.add(pieceMove);
 					}
 				} else {
 					if (pieceMove.to.y >= HonShogiField.MAX_Y - 1) {
-						removePieceZoneOfControl.add(pieceMove);
+						removePieceMoveList.add(pieceMove);
 					}
 				}
 			}
@@ -236,10 +236,10 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 		Timer.stop("check movable4");
 
 		// 移動不可分は削除
-		for (PieceMove pieceMove : removePieceZoneOfControl) {
+		for (PieceMove pieceMove : removePieceMoveList) {
 			pieceZoneOfControl.remove(pieceMove);
 		}
-		for (PieceMove pieceMove : stockPieceZoneOfControl) {
+		for (PieceMove pieceMove : stockPieceMoveList) {
 			pieceZoneOfControl.add(pieceMove);
 		}
 

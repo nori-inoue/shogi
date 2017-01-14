@@ -144,4 +144,25 @@ public class RandomActionEngineTest {
 		System.out.println(scene.getPieceZoneOfControl(otherPlayer));
 	}
 
+
+	// 打ち駒でない場合、歩／飛／角は成優先
+	@Test
+	public void testAction7() {
+		Logger.useDebug = true;
+
+		GameInformation gameInformation = new GameInformation();
+		GameProtocol gameProtocol = new HonShogi();
+		gameInformation.setGameProtocol(gameProtocol);
+
+		HonShogiScene scene = new HonShogiScene(gameInformation);
+
+		HonShogiSceneHash.loadScene("CBo8WOJ9xX9Gw====T6Ox=jdD5+ZMHL=RhoQ=BK5BAKBnk", scene);
+		gameProtocol.analyzeScene(scene);
+
+		Logger.debug(HonShogiDisplayUtil.displayByCharacter(scene));
+
+		HonShogiPlayer player = scene.getInitiativePlayer();
+		player.getActionEngine().action(scene);
+	}
+
 }
