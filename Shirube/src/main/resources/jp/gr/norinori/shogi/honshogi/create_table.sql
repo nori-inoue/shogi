@@ -75,11 +75,13 @@ COLLATE='utf8_unicode_ci'
 ENGINE=InnoDB
 ;
 
-truncate table game;
-truncate table game_scene;
+delete from game where exists (select * from on_game_scene where game.id = on_game_scene.game_id);
 truncate table on_game_scene;
-truncate table scene;
 truncate table on_scene;
+
+truncate table game;
+truncate table scene;
+truncate table game_scene;
 
 select toryo.game_id, (toryo.bgn - toryo.lst) % 2, scene.hash from scene
 inner join game_scene on game_scene.scene_id = scene.id
