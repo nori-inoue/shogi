@@ -57,15 +57,15 @@ public class RandomActionEngine implements ActionEngine {
 			if (pieceMove.from != null) {
 				HonShogiPieceType piceType = (HonShogiPieceType) pieceMove.toPiece.type;
 				if (player.getDirection() == Direction.UP) {
-					if (piceType.hashCode() == Fu.ID && pieceMove.to.y <= 3) {
+					if (piceType.hashCode() == Fu.ID && pieceMove.to.y <= 2) {
 						removePieceMoveList.add(pieceMove);
 						continue;
 					}
-					if (piceType.hashCode() == Kaku.ID && (pieceMove.to.y <= 3 || pieceMove.from.y <= 3)) {
+					if (piceType.hashCode() == Kaku.ID && (pieceMove.to.y <= 2 || pieceMove.from.y <= 2)) {
 						removePieceMoveList.add(pieceMove);
 						continue;
 					}
-					if (piceType.hashCode() == Hisha.ID && (pieceMove.to.y <= 3 || pieceMove.from.y <= 3)) {
+					if (piceType.hashCode() == Hisha.ID && (pieceMove.to.y <= 2 || pieceMove.from.y <= 2)) {
 						removePieceMoveList.add(pieceMove);
 						continue;
 					}
