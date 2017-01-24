@@ -22,10 +22,10 @@ public class NumberBase64 {
 		try {
 
 			while (data > 0) {
-				int x = (int) data & 0x3f; // 64bit分の値取得
+				int x = (int) data & 0x3f; // 6bit分の値取得
 				result.append(TABLE.charAt(x));
 
-				data = data >> 6; // 64bit分シフト
+				data = data >> 6; // 6bit分シフト
 			}
 		} catch (Exception e) {
 			return "";
