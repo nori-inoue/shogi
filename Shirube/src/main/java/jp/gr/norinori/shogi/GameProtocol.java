@@ -1,5 +1,9 @@
 package jp.gr.norinori.shogi;
 
+import java.util.List;
+
+import jp.gr.norinori.core.element.Pair;
+
 /**
  * ゲームプロトコルインタフェース
  *
@@ -27,9 +31,10 @@ public interface GameProtocol {
 	 *
 	 * @param scene 局面
 	 * @param lastAction 最終アクション
+	 * @param history 履歴
 	 * @return アクション判定結果
 	 */
-	public ActionResult judge(Scene scene, Action lastAction);
+	public ActionResult judge(Scene scene, Action lastAction, List<Pair<Action, String>> history);
 
 	/**
 	 * 次局面を設定する

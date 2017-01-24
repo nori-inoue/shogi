@@ -24,12 +24,6 @@ public class ReflectionData {
 			connection.setAutoCommit(false);
 
 			// sceneへ移動
-			Timer.start("insert scene", "total");
-			sql = "insert into scene(hash, first_win_count, second_win_count, draw, total, tumi) select hash, first_win_count, second_win_count, draw, total, tumi from on_scene where not exists(select * from scene where scene.hash = on_scene.hash)";
-			PreparedStatement onSceneStatement = connection.prepareStatement(sql);
-			onSceneStatement.executeUpdate();
-			Timer.stop("insert scene");
-
 			Timer.start("update scene", "total");
 			StringBuilder sceneSql = new StringBuilder("update scene ");
 			sceneSql.append(" inner join on_scene on scene.hash = on_scene.hash");
@@ -41,6 +35,12 @@ public class ReflectionData {
 			onSceneUpdateStatement.executeUpdate();
 			Timer.stop("update scene");
 
+			Timer.start("insert scene", "total");
+			sql = "insert into scene(hash, first_win_count, second_win_count, draw, total, tumi) select hash, first_win_count, second_win_count, draw, total, tumi from on_scene where not exists(select * from scene where scene.hash = on_scene.hash)";
+			PreparedStatement onSceneStatement = connection.prepareStatement(sql);
+			onSceneStatement.executeUpdate();
+			Timer.stop("insert scene");
+
 			Timer.start("delete scene", "total");
 			onSceneStatement = connection.prepareStatement("delete from on_scene");
 			onSceneStatement.executeUpdate();
@@ -48,7 +48,7 @@ public class ReflectionData {
 
 			// game_sceneへ移動
 			Timer.start("insert game_scene", "total");
-			sql = "insert into game_scene(game_id, scene_id) select on_game_scene.game_id, scene.id from on_game_scene inner join scene on scene.hash = on_game_scene.hash order by on_game_scene.id";
+			sql = "insert into game_scene(game_id, scene_id) select on_game_scene.game_id, scene.id from on_game_scene inner join scene on scene.hash = on_game_scene.hash";
 			PreparedStatement onGameSceneStatement = connection.prepareStatement(sql);
 			onGameSceneStatement.executeUpdate();
 			Timer.stop("insert game_scene");

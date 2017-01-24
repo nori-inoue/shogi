@@ -39,7 +39,7 @@ public class Main {
 		}
 		Logger.useInfo = true;
 
-		Timer.debug = false;
+//		Timer.debug = false;
 		Timer.startInfo("total");
 		for (int i = 0; i < loop; i++) {
 			Main me = new Main();
@@ -93,14 +93,15 @@ public class Main {
 				action.status = gameProtocol.nextPhage(scene, action);
 				Timer.stop("nextPhage");
 
+				hisotry.add(new KeyValuePair<Action, String>(action, scene.getHash()));
+
 				Timer.start("judge", "total");
-				result = gameProtocol.judge(scene, action);
+				result = gameProtocol.judge(scene, action, hisotry);
 				Timer.stop("judge");
 				if (!result.status.message.isEmpty()) {
 					Logger.debug(result.status.message);
 				}
 
-				hisotry.add(new KeyValuePair<Action, String>(action, scene.getHash()));
 
 				if (result.status.isEnd) {
 					HonShogiField field = (HonShogiField) scene.getField();

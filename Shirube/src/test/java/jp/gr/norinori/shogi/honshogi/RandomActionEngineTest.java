@@ -1,7 +1,12 @@
 package jp.gr.norinori.shogi.honshogi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 
+import jp.gr.norinori.core.element.KeyValuePair;
+import jp.gr.norinori.core.element.Pair;
 import jp.gr.norinori.shogi.Action;
 import jp.gr.norinori.shogi.GameInformation;
 import jp.gr.norinori.shogi.GameProtocol;
@@ -32,7 +37,10 @@ public class RandomActionEngineTest {
 		gameProtocol.nextPhage(scene, action);
 
 		Logger.debug(HonShogiDisplayUtil.displayByCharacter(scene));
-		gameProtocol.judge(scene, action);
+
+		List<Pair<Action, String>> hisotry = new ArrayList<>();
+		hisotry.add(new KeyValuePair<Action, String>(action, scene.getHash()));
+		gameProtocol.judge(scene, action, hisotry);
 	}
 
 	@Test
@@ -143,7 +151,6 @@ public class RandomActionEngineTest {
 		HonShogiPlayer otherPlayer = scene.getOtherPlayer();
 		System.out.println(scene.getPieceZoneOfControl(otherPlayer));
 	}
-
 
 	// 打ち駒でない場合、歩／飛／角は成優先
 	@Test

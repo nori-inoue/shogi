@@ -1,11 +1,14 @@
 package jp.gr.norinori.shogi.honshogi;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import jp.gr.norinori.core.collection.NumberingHashMap;
 import jp.gr.norinori.core.collection.NumberingMap;
+import jp.gr.norinori.core.element.Pair;
 import jp.gr.norinori.shogi.Action;
 import jp.gr.norinori.shogi.ActionResult;
 import jp.gr.norinori.shogi.ActionStatus;
@@ -52,7 +55,7 @@ public class HonShogi implements GameProtocol {
 	}
 
 	@Override
-	public ActionResult judge(Scene scene, Action lastAction) {
+	public ActionResult judge(Scene scene, Action lastAction, List<Pair<Action, String>> history) {
 		ActionResult result = new ActionResult();
 		result.status = lastAction.status;
 
@@ -68,13 +71,29 @@ public class HonShogi implements GameProtocol {
 			if (lastAction != null && (lastAction.from == null) && lastAction.toPiece.type instanceof Fu) {
 				result.status.message = "打ち歩詰め";
 				result.status.winners.add(player);
-				result.status.winners.add(otherPlayer);
 			} else {
 				result.status.message = "詰み";
 				result.status.winners.add(otherPlayer);
-				result.status.winners.add(player);
 			}
 		}
+
+		else {
+			Map<String, Integer> hisitoryMap = new HashMap<>(250);
+			for (Pair<Action, String> pair : history) {
+				String hash = pair.getSecond();
+				int count = 0;
+				if (hisitoryMap.containsKey(hash)) {
+					count = hisitoryMap.get(hash);
+					if (count >= 2) {
+						result.status.isEnd = true;
+						result.status.message = "千日手";
+						break;
+					}
+				}
+				hisitoryMap.put(hash, count + 1);
+			}
+		}
+
 		return result;
 	}
 
@@ -318,6 +337,7 @@ public class HonShogi implements GameProtocol {
 	@Override
 	public ActionStatus nextPhage(Scene scene, Action action) {
 		HonShogiActionStatus status = null;
+
 		Player player = scene.getInitiativePlayer();
 		HonShogiPlayer otherPlayer = ((HonShogiScene) scene).getOtherPlayer();
 		if (action != null) {
@@ -342,7 +362,6 @@ public class HonShogi implements GameProtocol {
 				status.message = player.getName() + "の勝利";
 				status.winners = new ArrayList<Player>();
 				status.winners.add(player);
-				status.winners.add(otherPlayer);
 
 				return status;
 			}
