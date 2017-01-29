@@ -256,26 +256,28 @@ public class HonShogi implements GameProtocol {
 	 * @return
 	 */
 	public static Piece createInitializePiece(Player player, HonShogiPieceType pieceType) {
-		String directionDisplay = "";
+		String directionDisplay1 = "／";
+		String directionDisplay2 = "＼";
 
 		if (player.getDirection() == Direction.DOWN) {
-			directionDisplay = "v";
+			directionDisplay1 = "＼";
+			directionDisplay2 = "／";
 		}
 
 		Piece piece = null;
 
 		if (pieceType instanceof Tokin)
-			piece = new Piece(new Fu(), directionDisplay + "歩");
+			piece = new Piece(new Fu(), directionDisplay1 + "歩" + directionDisplay2);
 		if (pieceType instanceof Narikyo)
-			piece = new Piece(new Kyo(), directionDisplay + "香");
+			piece = new Piece(new Kyo(), directionDisplay1 + "香" + directionDisplay2);
 		if (pieceType instanceof Narikei)
-			piece = new Piece(new Keima(), directionDisplay + "桂");
+			piece = new Piece(new Keima(), directionDisplay1 + "桂" + directionDisplay2);
 		if (pieceType instanceof Narigin)
-			piece = new Piece(new Gin(), directionDisplay + "銀");
+			piece = new Piece(new Gin(), directionDisplay1 + "銀" + directionDisplay2);
 		if (pieceType instanceof Uma)
-			piece = new Piece(new Kaku(), directionDisplay + "角");
+			piece = new Piece(new Kaku(), directionDisplay1 + "角" + directionDisplay2);
 		if (pieceType instanceof Ryu)
-			piece = new Piece(new Hisha(), directionDisplay + "飛");
+			piece = new Piece(new Hisha(), directionDisplay1 + "飛" + directionDisplay2);
 
 		if (piece == null) {
 			piece = createPiece(player, pieceType);
@@ -291,41 +293,43 @@ public class HonShogi implements GameProtocol {
 	 * @return
 	 */
 	public static Piece createPiece(Player player, HonShogiPieceType pieceType) {
-		String directionDisplay = "";
+		String directionDisplay1 = "／";
+		String directionDisplay2 = "＼";
 
 		if (player.getDirection() == Direction.DOWN) {
-			directionDisplay = "v";
+			directionDisplay1 = "＼";
+			directionDisplay2 = "／";
 		}
 
 		Piece piece = null;
 		if (pieceType instanceof Fu)
-			piece = new Piece(pieceType, directionDisplay + "歩");
+			piece = new Piece(pieceType, directionDisplay1 + "歩" + directionDisplay2);
 		if (pieceType instanceof Kyo)
-			piece = new Piece(pieceType, directionDisplay + "香");
+			piece = new Piece(pieceType, directionDisplay1 + "香" + directionDisplay2);
 		if (pieceType instanceof Keima)
-			piece = new Piece(pieceType, directionDisplay + "桂");
+			piece = new Piece(pieceType, directionDisplay1 + "桂" + directionDisplay2);
 		if (pieceType instanceof Gin)
-			piece = new Piece(pieceType, directionDisplay + "銀");
+			piece = new Piece(pieceType, directionDisplay1 + "銀" + directionDisplay2);
 		if (pieceType instanceof Kin)
-			piece = new Piece(pieceType, directionDisplay + "金");
+			piece = new Piece(pieceType, directionDisplay1 + "金" + directionDisplay2);
 		if (pieceType instanceof Kaku)
-			piece = new Piece(pieceType, directionDisplay + "角");
+			piece = new Piece(pieceType, directionDisplay1 + "角" + directionDisplay2);
 		if (pieceType instanceof Hisha)
-			piece = new Piece(pieceType, directionDisplay + "飛");
+			piece = new Piece(pieceType, directionDisplay1 + "飛" + directionDisplay2);
 		if (pieceType instanceof Ou)
-			piece = new Piece(pieceType, directionDisplay + "王");
+			piece = new Piece(pieceType, directionDisplay1 + "王" + directionDisplay2);
 		if (pieceType instanceof Tokin)
-			piece = new Piece(pieceType, directionDisplay + "と");
+			piece = new Piece(pieceType, directionDisplay1 + "と" + directionDisplay2);
 		if (pieceType instanceof Narikyo)
-			piece = new Piece(pieceType, directionDisplay + "杏");
+			piece = new Piece(pieceType, directionDisplay1 + "杏" + directionDisplay2);
 		if (pieceType instanceof Narikei)
-			piece = new Piece(pieceType, directionDisplay + "圭");
+			piece = new Piece(pieceType, directionDisplay1 + "圭" + directionDisplay2);
 		if (pieceType instanceof Narigin)
-			piece = new Piece(pieceType, directionDisplay + "全");
+			piece = new Piece(pieceType, directionDisplay1 + "全" + directionDisplay2);
 		if (pieceType instanceof Uma)
-			piece = new Piece(pieceType, directionDisplay + "馬");
+			piece = new Piece(pieceType, directionDisplay1 + "馬" + directionDisplay2);
 		if (pieceType instanceof Ryu)
-			piece = new Piece(pieceType, directionDisplay + "竜");
+			piece = new Piece(pieceType, directionDisplay1 + "竜" + directionDisplay2);
 
 		if (piece == null) {
 			throw new IllegalArgumentException("No Piece Type" + pieceType);

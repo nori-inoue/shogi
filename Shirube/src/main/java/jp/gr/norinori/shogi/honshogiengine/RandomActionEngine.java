@@ -98,6 +98,7 @@ public class RandomActionEngine implements ActionEngine {
 			if (checkStatus.isTumi) {
 				// 打ち歩詰め禁止
 				if ((checkAction.from == null) && checkAction.toPiece.type instanceof Fu) {
+					removePieceMoveList.add(pieceMove);
 					continue;
 				}
 
@@ -111,6 +112,13 @@ public class RandomActionEngine implements ActionEngine {
 		for (PieceMove pieceMove : removePieceMoveList) {
 			movableList.remove(pieceMove);
 		}
+		if (movableList.isEmpty()) {
+			ActionStatus status = new HonShogiActionStatus();
+			status.isEnd = true;
+			status.message = "移動可能駒なし：投了";
+			return action;
+		}
+
 		Timer.stop(LoggerLabel.checkTumi);
 
 		Random random = new Random();

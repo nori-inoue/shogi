@@ -9,15 +9,90 @@ import java.util.List;
 import org.junit.Test;
 
 import jp.gr.norinori.core.collection.TreeNode;
+import jp.gr.norinori.shogi.Action;
 import jp.gr.norinori.shogi.GameInformation;
 import jp.gr.norinori.shogi.GameProtocol;
 import jp.gr.norinori.shogi.Logger;
+import jp.gr.norinori.shogi.NumberBase64;
+import jp.gr.norinori.shogi.Piece;
 import jp.gr.norinori.shogi.PieceMove;
+import jp.gr.norinori.shogi.Player;
 import jp.gr.norinori.shogi.Point;
 import jp.gr.norinori.shogi.Timer;
+import jp.gr.norinori.shogi.honshogi.piece.Fu;
+import jp.gr.norinori.shogi.honshogi.piece.Gin;
+import jp.gr.norinori.shogi.honshogi.piece.Ou;
 import jp.gr.norinori.utility.StringUtil;
 
 public class SceneHashTest {
+
+	@Test
+	public void testActionHash() {
+		GameInformation gameInformation = new GameInformation();
+		GameProtocol gameProtocol = new HonShogi();
+		gameInformation.setGameProtocol(gameProtocol);
+
+		HonShogiScene scene = new HonShogiScene(gameInformation);
+
+		HonShogiSceneHash.loadScene("JASZrzOEFbdA=====OPYA=NsVn=NKb5=MppY=BX9BOcBFf", scene);
+		// System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
+
+		Action action = new Action();
+		PieceMove pieceMove = new PieceMove(new Point(1, 2), new Point(1, 1), new Piece(new Fu(), "歩"));
+		action.setFromPieceMove(pieceMove);
+
+		String result;
+
+		long fromHash = (action.fromPiece.type.hashCode() * 90) + (action.from.x + (action.from.y * 9));
+		long toHash = (action.toPiece.type.hashCode() * 90) + (action.to.x + (action.to.y * 9));
+
+		Player player = scene.getInitiativePlayer();
+		long hash = (fromHash << 12) | (toHash << 1) | (player.getId() >> 1);
+
+		int length = 4; // 2^11 2^11 2 -> 2^23  < 64^4
+		String base64 = NumberBase64.encode(hash);
+		String pad = "==".substring(0, length - base64.length());
+		result = base64 + pad;
+
+		System.out.println(result);
+	}
+
+	@Test
+	public void testLoadActionHash() {
+		String hash = "BtDI";
+		String base64 = hash;
+		long hashValue = NumberBase64.decode(base64.replaceAll("=", "")).longValue();
+
+		long player = hashValue & 1;
+		System.out.println("Player:" + (player + 1));
+
+		hashValue = hashValue >> 1;
+		long toHash = hashValue & 2047; // 11111111111
+		int[] toPoints = toPoints((int) toHash);
+		System.out.println("to:" + toPoints[0] + " " + toPoints[1] + " " + toPoints[2]);
+
+		hashValue = hashValue >> 11;
+		long fromHash = hashValue & 2047; // 11111111111
+		int[] fromPoints = toPoints((int) fromHash);
+		System.out.println("from:" + fromPoints[0] + " " + fromPoints[1] + " " + fromPoints[2]);
+	}
+
+	/*
+	 * @return int[0]:x int[1]:y int[2]:Piece id
+	 */
+	private static int[] toPoints(int value) {
+		int[] result = new int[4];
+
+		int point = value % 90;
+		int piece = (value - point) / 90;
+
+		result[0] = point % 9;
+		result[1] = (point - result[0]) / 9;
+
+		result[2] = piece;
+
+		return result;
+	}
 
 	@Test
 	public void testGetHash() {
@@ -154,7 +229,7 @@ public class SceneHashTest {
 
 		HonShogiScene scene = new HonShogiScene(gameInformation);
 
-		HonShogiSceneHash.loadScene("JASZrzOEFbdA=====OPYA=NsVn=NKb5=MppY=BX9BOcBFf", scene);
+		HonShogiSceneHash.loadScene("JASZrzOEFbdA=====OPYA=NsVn=NKb5=MppQ=BX9BOcH/e", scene);
 		System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
 
 		gameInformation = new GameInformation();
@@ -162,7 +237,7 @@ public class SceneHashTest {
 
 		scene = new HonShogiScene(gameInformation);
 
-		HonShogiSceneHash.loadScene("BKuGdsAU4YXJH====UJYY=n/3j=Qw9q=QGSP=BlPBOdHcV", scene);
+		HonShogiSceneHash.loadScene("JASZrzOEFbdA=====OPYA=NsVn=NKb5=MppY=BX9BOcHgC", scene);
 		System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
 		System.out.println(scene.getInitiativePlayer().getName());
 	}
@@ -230,8 +305,8 @@ public class SceneHashTest {
 			assertEquals(expectPoints[i], actualPoint);
 		}
 
-		assertEquals("王", actualOuteEscape.get(0).fromPiece.name);
-		assertEquals("銀", actualOuteEscape.get(2).fromPiece.name);
+		assertEquals(Ou.ID, actualOuteEscape.get(0).fromPiece.type.hashCode());
+		assertEquals(Gin.ID, actualOuteEscape.get(2).fromPiece.type.hashCode());
 	}
 
 	// 持ち駒で防げないバグ
@@ -300,7 +375,8 @@ public class SceneHashTest {
 	/**
 	 * ツリーログ出力
 	 *
-	 * @param rootNode ルートノード
+	 * @param rootNode
+	 *            ルートノード
 	 */
 	private void logTimer(TreeNode<String> rootNode) {
 		for (TreeNode<String> node : rootNode.children()) {
@@ -311,8 +387,10 @@ public class SceneHashTest {
 	/**
 	 * ツリーログ出力
 	 *
-	 * @param node ノード
-	 * @param depth 深さ
+	 * @param node
+	 *            ノード
+	 * @param depth
+	 *            深さ
 	 */
 	private void logTimer(TreeNode<String> node, int depth) {
 		String pad = "";
