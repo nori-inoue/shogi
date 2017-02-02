@@ -31,6 +31,13 @@ public interface Scene {
 	public NumberingMap<Integer, Player> getPlayers();
 
 	/**
+	 * プレイヤーリストにプレイヤーを追加する
+	 *
+	 * @param player プレイヤー
+	 */
+	public void addPlayer(Player player);
+
+	/**
 	 *
 	 * @return 手番以外のプレイヤーリスト
 	 */

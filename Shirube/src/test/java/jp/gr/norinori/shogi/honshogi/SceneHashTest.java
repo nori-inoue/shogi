@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import jp.gr.norinori.core.collection.TreeNode;
 import jp.gr.norinori.shogi.Action;
+import jp.gr.norinori.shogi.Direction;
 import jp.gr.norinori.shogi.GameInformation;
 import jp.gr.norinori.shogi.GameProtocol;
 import jp.gr.norinori.shogi.Logger;
@@ -18,21 +19,19 @@ import jp.gr.norinori.shogi.Piece;
 import jp.gr.norinori.shogi.PieceMove;
 import jp.gr.norinori.shogi.Player;
 import jp.gr.norinori.shogi.Point;
+import jp.gr.norinori.shogi.Scene;
 import jp.gr.norinori.shogi.Timer;
 import jp.gr.norinori.shogi.honshogi.piece.Fu;
 import jp.gr.norinori.shogi.honshogi.piece.Gin;
 import jp.gr.norinori.shogi.honshogi.piece.Ou;
+import jp.gr.norinori.shogi.honshogiengine.RandomActionEngine;
 import jp.gr.norinori.utility.StringUtil;
 
 public class SceneHashTest {
 
 	@Test
 	public void testActionHash() {
-		GameInformation gameInformation = new GameInformation();
-		GameProtocol gameProtocol = new HonShogi();
-		gameInformation.setGameProtocol(gameProtocol);
-
-		HonShogiScene scene = new HonShogiScene(gameInformation);
+		HonShogiScene scene = createScene();
 
 		HonShogiSceneHash.loadScene("JASZrzOEFbdA=====OPYA=NsVn=NKb5=MppY=BX9BOcBFf", scene);
 		// System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
@@ -49,7 +48,7 @@ public class SceneHashTest {
 		Player player = scene.getInitiativePlayer();
 		long hash = (fromHash << 12) | (toHash << 1) | (player.getId() >> 1);
 
-		int length = 4; // 2^11 2^11 2 -> 2^23  < 64^4
+		int length = 4; // 2^11 2^11 2 -> 2^23 < 64^4
 		String base64 = NumberBase64.encode(hash);
 		String pad = "==".substring(0, length - base64.length());
 		result = base64 + pad;
@@ -223,19 +222,12 @@ public class SceneHashTest {
 	public void testLoadScene() {
 		Logger.useDebug = true;
 
-		GameInformation gameInformation = new GameInformation();
-		GameProtocol gameProtocol = new HonShogi();
-		gameInformation.setGameProtocol(gameProtocol);
-
-		HonShogiScene scene = new HonShogiScene(gameInformation);
+		HonShogiScene scene = createScene();
 
 		HonShogiSceneHash.loadScene("JASZrzOEFbdA=====OPYA=NsVn=NKb5=MppQ=BX9BOcH/e", scene);
 		System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
 
-		gameInformation = new GameInformation();
-		gameInformation.setGameProtocol(gameProtocol);
-
-		scene = new HonShogiScene(gameInformation);
+		scene = createScene();
 
 		HonShogiSceneHash.loadScene("JASZrzOEFbdA=====OPYA=NsVn=NKb5=MppY=BX9BOcHgC", scene);
 		System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
@@ -247,14 +239,10 @@ public class SceneHashTest {
 	public void testAction1() {
 		Logger.useDebug = true;
 
-		GameInformation gameInformation = new GameInformation();
-		GameProtocol gameProtocol = new HonShogi();
-		gameInformation.setGameProtocol(gameProtocol);
-
-		HonShogiScene scene = new HonShogiScene(gameInformation);
+		HonShogiScene scene = createScene();
 
 		HonShogiSceneHash.loadScene("GWaU0HNXUrcmXzRMmETyb1h2RCnilIiufeqE=E5GJO=HJD", scene);
-		gameProtocol.analyzeScene(scene);
+		scene.getGameInformation().getGameProtocol().analyzeScene(scene);
 
 		System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
 		System.out.println(scene.getPieceZoneOfControl(scene.getInitiativePlayer()));
@@ -265,14 +253,10 @@ public class SceneHashTest {
 	public void testAction2() {
 		Logger.useDebug = true;
 
-		GameInformation gameInformation = new GameInformation();
-		GameProtocol gameProtocol = new HonShogi();
-		gameInformation.setGameProtocol(gameProtocol);
-
-		HonShogiScene scene = new HonShogiScene(gameInformation);
+		HonShogiScene scene = createScene();
 
 		HonShogiSceneHash.loadScene("EZ32lHzV1pXUDT===BRwtVBIp0vEnZE3dmTT=BJfga=Byn", scene);
-		gameProtocol.analyzeScene(scene);
+		scene.getGameInformation().getGameProtocol().analyzeScene(scene);
 
 		System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
 		System.out.println(scene.getPieceZoneOfControl(scene.getInitiativePlayer()));
@@ -283,14 +267,10 @@ public class SceneHashTest {
 	public void testAction3() {
 		Logger.useDebug = true;
 
-		GameInformation gameInformation = new GameInformation();
-		GameProtocol gameProtocol = new HonShogi();
-		gameInformation.setGameProtocol(gameProtocol);
-
-		HonShogiScene scene = new HonShogiScene(gameInformation);
+		HonShogiScene scene = createScene();
 
 		HonShogiSceneHash.loadScene("EmPhtu2vrf68RFByWVNUr=jeTr=aEGf=CIsbaBIQBUoBBL", scene);
-		gameProtocol.analyzeScene(scene);
+		scene.getGameInformation().getGameProtocol().analyzeScene(scene);
 
 		System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
 		System.out.println(scene.getPieceZoneOfControl(scene.getInitiativePlayer()));
@@ -314,14 +294,10 @@ public class SceneHashTest {
 	public void testAction4() {
 		Logger.useDebug = true;
 
-		GameInformation gameInformation = new GameInformation();
-		GameProtocol gameProtocol = new HonShogi();
-		gameInformation.setGameProtocol(gameProtocol);
-
-		HonShogiScene scene = new HonShogiScene(gameInformation);
+		HonShogiScene scene = createScene();
 
 		HonShogiSceneHash.loadScene("IciauRUt+dsGov===VNns=CG4npR44n=Wv7f=BX9OwcBIc", scene);
-		gameProtocol.analyzeScene(scene);
+		scene.getGameInformation().getGameProtocol().analyzeScene(scene);
 
 		System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
 		System.out.println(scene.getPieceZoneOfControl(scene.getInitiativePlayer()));
@@ -354,14 +330,10 @@ public class SceneHashTest {
 	// 局面のクローンの速度調査
 	@Test
 	public void testSceneClone() {
-		GameInformation gameInformation = new GameInformation();
-		GameProtocol gameProtocol = new HonShogi();
-		gameInformation.setGameProtocol(gameProtocol);
-
-		HonShogiScene scene = new HonShogiScene(gameInformation);
+		HonShogiScene scene = createScene();
 
 		HonShogiSceneHash.loadScene("EmPhtu2vrf68RFByWVNUr=jeTr=aEGf=CIsbaBIQBUoBBL", scene);
-		gameProtocol.analyzeScene(scene);
+		scene.getGameInformation().getGameProtocol().analyzeScene(scene);
 
 		LoggerLabel.sceneClone = Timer.start("scene clone", LoggerLabel.sceneClone);
 		for (int i = 0; i < 50000; i++) {
@@ -372,11 +344,36 @@ public class SceneHashTest {
 		logTimer(Timer.getTreeTimeids());
 	}
 
+	private HonShogiScene createScene() {
+		GameInformation gameInformation = new GameInformation();
+		GameProtocol gameProtocol = new HonShogi();
+		gameInformation.setGameProtocol(gameProtocol);
+
+		HonShogiScene scene = new HonShogiScene(gameInformation);
+		createPlayer(scene);
+		return scene;
+	}
+
+	private void createPlayer(Scene scene) {
+		HonShogiPlayer sente = new HonShogiPlayer(HonShogiPlayer.SENTE);
+		sente.setName("先手");
+		sente.setDirection(Direction.UP);
+		sente.setActionEngine(new RandomActionEngine());
+
+		scene.addPlayer(sente);
+
+		HonShogiPlayer gote = new HonShogiPlayer(HonShogiPlayer.GOTE);
+		gote.setName("後手");
+		gote.setDirection(Direction.DOWN);
+		gote.setActionEngine(new RandomActionEngine());
+
+		scene.addPlayer(gote);
+	}
+
 	/**
 	 * ツリーログ出力
 	 *
-	 * @param rootNode
-	 *            ルートノード
+	 * @param rootNode ルートノード
 	 */
 	private void logTimer(TreeNode<String> rootNode) {
 		for (TreeNode<String> node : rootNode.children()) {
@@ -387,10 +384,8 @@ public class SceneHashTest {
 	/**
 	 * ツリーログ出力
 	 *
-	 * @param node
-	 *            ノード
-	 * @param depth
-	 *            深さ
+	 * @param node ノード
+	 * @param depth 深さ
 	 */
 	private void logTimer(TreeNode<String> node, int depth) {
 		String pad = "";

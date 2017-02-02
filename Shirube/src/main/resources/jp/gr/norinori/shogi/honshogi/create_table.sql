@@ -122,8 +122,8 @@ where on_game_scene.game_id = xx
 order by on_game_scene.id
 
 select hash
-, truncate((truncate(first_win_count / total, 4) - 0.5) * 20000 ,0)
-, truncate((truncate(second_win_count / total, 4) - 0.5) * 20000 ,0)
+, truncate((truncate((first_win_count/2) / total, 4) - 0.5) * 20000 ,0)
+, truncate((truncate((second_win_count/2) / total, 4) - 0.5) * 20000 ,0)
 , total, tumi
 from scene where total > 10;
 

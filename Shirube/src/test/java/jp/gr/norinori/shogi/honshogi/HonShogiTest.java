@@ -7,16 +7,20 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import jp.gr.norinori.shogi.Direction;
 import jp.gr.norinori.shogi.GameInformation;
 import jp.gr.norinori.shogi.PieceMove;
 import jp.gr.norinori.shogi.Point;
+import jp.gr.norinori.shogi.honshogi.piece.Hisha;
+import jp.gr.norinori.shogi.honshogi.piece.Kaku;
+import jp.gr.norinori.shogi.honshogiengine.RandomActionEngine;
 
 public class HonShogiTest {
 
 	// 定数=====================================================================
 	private final static String RESOURCE_PATH = "./src/test/resources/jp/gr/norinori/shogi/honshogi";
 
-    // メンバ===================================================================
+	// メンバ===================================================================
 	private GameInformation gameInformation;
 	private HonShogiScene scene;
 
@@ -26,6 +30,20 @@ public class HonShogiTest {
 		this.gameInformation = new GameInformation();
 		this.gameInformation.setGameProtocol(new HonShogi());
 		this.scene = new HonShogiScene(this.gameInformation);
+
+		HonShogiPlayer sente = new HonShogiPlayer(HonShogiPlayer.SENTE);
+		sente.setName("先手");
+		sente.setDirection(Direction.UP);
+		sente.setActionEngine(new RandomActionEngine());
+
+		this.scene.addPlayer(sente);
+
+		HonShogiPlayer gote = new HonShogiPlayer(HonShogiPlayer.GOTE);
+		gote.setName("後手");
+		gote.setDirection(Direction.DOWN);
+		gote.setActionEngine(new RandomActionEngine());
+
+		this.scene.addPlayer(gote);
 	}
 
 	@Test
@@ -37,7 +55,7 @@ public class HonShogiTest {
 		HonShogiPieceZoneOfControl pieceZoneOfControl = (HonShogiPieceZoneOfControl) this.scene
 				.getPieceZoneOfControl(this.scene.getInitiativePlayer());
 
-//		System.out.println(pieceZoneOfControl);
+		// System.out.println(pieceZoneOfControl);
 
 		List<PieceMove> actualOuteLine = pieceZoneOfControl.getOuteLine();
 		Point[] expectPoints = new Point[3];
@@ -49,7 +67,7 @@ public class HonShogiTest {
 			assertEquals(expectPoints[i], actualPoint);
 		}
 
-		assertEquals("飛", actualOuteLine.get(0).fromPiece.name);
+		assertEquals(Hisha.ID, actualOuteLine.get(0).fromPiece.type.hashCode());
 
 		List<PieceMove> actualOuteLineSpace = pieceZoneOfControl.getOuteBlockLine();
 		expectPoints = new Point[3];
@@ -61,8 +79,8 @@ public class HonShogiTest {
 			assertEquals(expectPoints[i], actualPoint);
 		}
 
-		assertEquals("飛", actualOuteLineSpace.get(0).fromPiece.name);
-		assertEquals("飛", actualOuteLineSpace.get(2).fromPiece.name);
+		assertEquals(Hisha.ID, actualOuteLine.get(0).fromPiece.type.hashCode());
+		assertEquals(Hisha.ID, actualOuteLine.get(2).fromPiece.type.hashCode());
 	}
 
 	@Test
@@ -74,7 +92,7 @@ public class HonShogiTest {
 		HonShogiPieceZoneOfControl pieceZoneOfControl = (HonShogiPieceZoneOfControl) this.scene
 				.getPieceZoneOfControl(this.scene.getInitiativePlayer());
 
-//		System.out.println(pieceZoneOfControl);
+		// System.out.println(pieceZoneOfControl);
 
 		List<PieceMove> actualOuteLine = pieceZoneOfControl.getOuteLine();
 		Point[] expectPoints = new Point[4];
@@ -87,7 +105,7 @@ public class HonShogiTest {
 			assertEquals(expectPoints[i], actualPoint);
 		}
 
-		assertEquals("角", actualOuteLine.get(0).fromPiece.name);
+		assertEquals(Kaku.ID, actualOuteLine.get(0).fromPiece.type.hashCode());
 
 		List<PieceMove> actualOuteLineSpace = pieceZoneOfControl.getOuteBlockLine();
 		expectPoints = new Point[2];
@@ -98,9 +116,8 @@ public class HonShogiTest {
 			assertEquals(expectPoints[i], actualPoint);
 		}
 
-		assertEquals("角", actualOuteLineSpace.get(0).fromPiece.name);
+		assertEquals(Kaku.ID, actualOuteLine.get(0).fromPiece.type.hashCode());
 	}
-
 
 	@Test
 	public void testOutMove1() {
@@ -111,7 +128,7 @@ public class HonShogiTest {
 		HonShogiPieceZoneOfControl pieceZoneOfControl = (HonShogiPieceZoneOfControl) this.scene
 				.getPieceZoneOfControl(this.scene.getInitiativePlayer());
 
-//		 System.out.println(pieceZoneOfControl);
+		// System.out.println(pieceZoneOfControl);
 
 		List<PieceMove> actualOuList = pieceZoneOfControl.getOuList();
 		Point[] expectPoints = new Point[5];
@@ -126,7 +143,6 @@ public class HonShogiTest {
 		}
 	}
 
-
 	@Test
 	public void testOutMove2() {
 		HonshogiSettings.load(this.scene, RESOURCE_PATH + "/testOuMove2.txt");
@@ -135,11 +151,12 @@ public class HonShogiTest {
 		System.out.println(HonShogiDisplayUtil.displayByCharacter(this.scene));
 		HonShogiPieceZoneOfControl pieceZoneOfControl = (HonShogiPieceZoneOfControl) this.scene
 				.getPieceZoneOfControl(this.scene.getInitiativePlayer());
-//		HonShogiPieceZoneOfControl otherPieceZoneOfControl = (HonShogiPieceZoneOfControl) this.scene
-//				.getPieceZoneOfControl(this.scene.getOtherPlayer());
+		// HonShogiPieceZoneOfControl otherPieceZoneOfControl =
+		// (HonShogiPieceZoneOfControl) this.scene
+		// .getPieceZoneOfControl(this.scene.getOtherPlayer());
 
-//		 System.out.println(pieceZoneOfControl);
-//		 System.out.println(otherPieceZoneOfControl);
+		// System.out.println(pieceZoneOfControl);
+		// System.out.println(otherPieceZoneOfControl);
 
 		List<PieceMove> actualOuList = pieceZoneOfControl.getOuList();
 		Point[] expectPoints = new Point[4];
@@ -153,7 +170,6 @@ public class HonShogiTest {
 		}
 	}
 
-
 	@Test
 	public void testNGPosition1() {
 		HonshogiSettings.load(this.scene, RESOURCE_PATH + "/testNGPosition1.txt");
@@ -165,8 +181,8 @@ public class HonShogiTest {
 		HonShogiPieceZoneOfControl otherPieceZoneOfControl = (HonShogiPieceZoneOfControl) this.scene
 				.getPieceZoneOfControl(this.scene.getOtherPlayer());
 
-		 System.out.println(pieceZoneOfControl);
-		 System.out.println(otherPieceZoneOfControl);
+		System.out.println(pieceZoneOfControl);
+		System.out.println(otherPieceZoneOfControl);
 
 		List<PieceMove> actualOuList = pieceZoneOfControl.getList();
 		Point[] expectPoints = new Point[6];

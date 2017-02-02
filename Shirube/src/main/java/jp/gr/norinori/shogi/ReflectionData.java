@@ -84,7 +84,7 @@ public class ReflectionData {
 			truncateStatement.executeUpdate();
 
 			Timer.start("insert ex_scene", "extend");
-			sql = "insert into ex_scene(hash, first_win_rate, second_win_rate, total, tumi) select hash, truncate((truncate(first_win_count / total, 4) - 0.5) * 20000 ,0), truncate((truncate(second_win_count / total, 4) - 0.5) * 20000 ,0), total, tumi from scene where total > 10;";
+			sql = "insert into ex_scene(hash, first_win_rate, second_win_rate, total, tumi) select hash, truncate((truncate((first_win_count+draw/2) / total, 4) - 0.5) * 20000 ,0), truncate((truncate((second_win_count+draw/2) / total, 4) - 0.5) * 20000 ,0), total, tumi from scene where total > 10;";
 			PreparedStatement exSceneStatement = connection.prepareStatement(sql);
 			exSceneStatement.executeUpdate();
 			Timer.stop("insert ex_scene");

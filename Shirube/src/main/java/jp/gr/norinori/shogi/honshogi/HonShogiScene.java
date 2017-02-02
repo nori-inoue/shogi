@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 
 import jp.gr.norinori.core.collection.NumberingHashMap;
 import jp.gr.norinori.core.collection.NumberingMap;
-import jp.gr.norinori.shogi.Direction;
 import jp.gr.norinori.shogi.GameInformation;
 import jp.gr.norinori.shogi.PieceLocations;
 import jp.gr.norinori.shogi.PieceMove;
@@ -17,7 +16,6 @@ import jp.gr.norinori.shogi.Player;
 import jp.gr.norinori.shogi.Point;
 import jp.gr.norinori.shogi.Scene;
 import jp.gr.norinori.shogi.Timer;
-import jp.gr.norinori.shogi.honshogiengine.RandomActionEngine;
 
 /**
  *
@@ -50,19 +48,7 @@ public class HonShogiScene implements Scene {
 		this.outeEscapeMap = new HashMap<>();
 		this.honShogiField = new HonShogiField();
 
-		HonShogiPlayer sente = new HonShogiPlayer(HonShogiPlayer.SENTE);
-		sente.setName("先手");
-		sente.setDirection(Direction.UP);
-		sente.setActionEngine(new RandomActionEngine());
-
-		HonShogiPlayer gote = new HonShogiPlayer(HonShogiPlayer.GOTE);
-		gote.setName("後手");
-		gote.setDirection(Direction.DOWN);
-		gote.setActionEngine(new RandomActionEngine());
-
 		this.players = new NumberingHashMap<>();
-		this.players.put(HonShogiPlayer.SENTE, sente);
-		this.players.put(HonShogiPlayer.GOTE, gote);
 
 		clearExistsPiece();
 	}
@@ -129,13 +115,14 @@ public class HonShogiScene implements Scene {
 		return this.otherPlayer;
 	}
 
-	/**
-	 * プレイヤーリストを取得する
-	 *
-	 * @return プレイヤーリスト
-	 */
+	@Override
 	public NumberingMap<Integer, Player> getPlayers() {
 		return this.players;
+	}
+
+	@Override
+	public void addPlayer(Player player) {
+		this.players.put(player.getId(), player);
 	}
 
 	@Override

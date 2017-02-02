@@ -37,6 +37,7 @@ import jp.gr.norinori.shogi.honshogi.piece.Ou;
 import jp.gr.norinori.shogi.honshogi.piece.Ryu;
 import jp.gr.norinori.shogi.honshogi.piece.Tokin;
 import jp.gr.norinori.shogi.honshogi.piece.Uma;
+import jp.gr.norinori.shogi.honshogiengine.RateSearchActionEngine;
 
 /**
  * 本将棋用プロトコル
@@ -245,6 +246,22 @@ public class HonShogi implements GameProtocol {
 		HonShogiScene scene = new HonShogiScene(gameInformation);
 		String settingsFile = "src/main/resources/jp/gr/norinori/shogi/honshogi/initializeSettings.txt";
 		HonshogiSettings.load(scene, settingsFile);
+
+		HonShogiPlayer sente = new HonShogiPlayer(HonShogiPlayer.SENTE);
+		sente.setName("先手");
+		sente.setDirection(Direction.UP);
+//		sente.setActionEngine(new RandomActionEngine());
+		sente.setActionEngine(new RateSearchActionEngine());
+
+		scene.addPlayer(sente);
+
+		HonShogiPlayer gote = new HonShogiPlayer(HonShogiPlayer.GOTE);
+		gote.setName("後手");
+		gote.setDirection(Direction.DOWN);
+//		gote.setActionEngine(new RandomActionEngine());
+		gote.setActionEngine(new RateSearchActionEngine());
+
+		scene.addPlayer(gote);
 
 		return scene;
 	}
