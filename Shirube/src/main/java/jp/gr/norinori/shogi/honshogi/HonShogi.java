@@ -244,8 +244,6 @@ public class HonShogi implements GameProtocol {
 	@Override
 	public Scene initializeScene(GameInformation gameInformation) {
 		HonShogiScene scene = new HonShogiScene(gameInformation);
-		String settingsFile = "src/main/resources/jp/gr/norinori/shogi/honshogi/initializeSettings.txt";
-		HonshogiSettings.load(scene, settingsFile);
 
 		HonShogiPlayer sente = new HonShogiPlayer(HonShogiPlayer.SENTE);
 		sente.setName("先手");
@@ -262,6 +260,9 @@ public class HonShogi implements GameProtocol {
 		gote.setActionEngine(new RateSearchActionEngine());
 
 		scene.addPlayer(gote);
+
+		String settingsFile = "src/main/resources/jp/gr/norinori/shogi/honshogi/initializeSettings.txt";
+		HonshogiSettings.load(scene, settingsFile);
 
 		return scene;
 	}
