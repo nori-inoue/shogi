@@ -17,7 +17,6 @@ import jp.gr.norinori.shogi.ZOCAnalyzer;
 import jp.gr.norinori.shogi.honshogi.piece.Fu;
 import jp.gr.norinori.shogi.honshogi.piece.Keima;
 import jp.gr.norinori.shogi.honshogi.piece.Kyo;
-import jp.gr.norinori.shogi.honshogi.piece.Ou;
 
 public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 
@@ -170,18 +169,14 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 		// 王手軌道上の駒の移動可能を判定(王は除外)
 		// =================================================================
 		Timer.start("check movable3", "analyzePieceZoneOfControlManager");
-		List<PieceMove> outeLine = otherPieceZoneOfControl.getOuteLine();
+		List<PieceMove> outeBlockLine = otherPieceZoneOfControl.getOuteBlockLine();
 		for (PieceMove pieceMove : pieceZoneOfControl.getList()) {
-			if (pieceMove.toPiece.type instanceof Ou) {
-				continue;
-			}
-
 			// 移動先が王手軌道上以外は移動不可
-			for (PieceMove outePieceMove : outeLine) {
+			for (PieceMove outePieceMove : outeBlockLine) {
 				if (pieceMove.from.equals(outePieceMove.to)) {
 
 					boolean existsMovable = false;
-					for (PieceMove outePieceMove2 : outeLine) {
+					for (PieceMove outePieceMove2 : outeBlockLine) {
 						// 同じ王手している駒の軌道のみ対象
 						if (outePieceMove.from.equals(outePieceMove2.from) && pieceMove.to.equals(outePieceMove2.to)) {
 							existsMovable = true;

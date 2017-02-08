@@ -1,6 +1,7 @@
 package jp.gr.norinori.shogi.honshogi;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
@@ -325,6 +326,30 @@ public class SceneHashTest {
 		//
 		// assertEquals("王", actualOuteEscape.get(0).fromPiece.name);
 		// assertEquals("銀", actualOuteEscape.get(2).fromPiece.name);
+	}
+
+	// 王手ラインを移動してしまうバグ
+	@Test
+	public void testAction5() {
+		Logger.useDebug = true;
+
+		HonShogiScene scene = createScene();
+
+		HonShogiSceneHash.loadScene("kwtBk56+rc1J=====bxbg=NsVn=TmFv=RY1R=CZCBOcBWW", scene);
+		scene.getGameInformation().getGameProtocol().analyzeScene(scene);
+
+		System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
+		System.out.println(scene.getPieceZoneOfControl(scene.getInitiativePlayer()));
+
+		boolean isExists = false;
+		List<PieceMove> list = scene.getPieceZoneOfControl(scene.getInitiativePlayer()).getList();
+		for (PieceMove pieceMove : list) {
+			if (pieceMove.from.equals(new Point(4, 6)) && pieceMove.to.equals(new Point(4, 5))) {
+				isExists = true;
+				break;
+			}
+		}
+		assertFalse(isExists);
 	}
 
 	// 局面のクローンの速度調査
