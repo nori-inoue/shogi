@@ -352,6 +352,31 @@ public class SceneHashTest {
 		assertFalse(isExists);
 	}
 
+	// 王手ライン上の駒が王手した場合、王手対象に含まれないバグ
+	@Test
+	public void testAction6() {
+		Logger.useDebug = true;
+
+		HonShogiScene scene = createScene();
+
+		HonShogiSceneHash.loadScene("DIXha3xca9nQCgtmVEJzl+X7NW=a45p=B+ShoN3AOWFGdI", scene);
+		scene.getGameInformation().getGameProtocol().analyzeScene(scene);
+
+		System.out.println(HonShogiDisplayUtil.displayByCharacter(scene));
+		System.out.println(scene.getPieceZoneOfControl(scene.getInitiativePlayer()));
+		System.out.println(scene.getPieceZoneOfControl(scene.getOtherPlayer()));
+
+		boolean isExists = false;
+		List<PieceMove> list = scene.getPieceZoneOfControl(scene.getOtherPlayer()).getList();
+		for (PieceMove pieceMove : list) {
+			if (pieceMove.from.equals(new Point(5, 2)) && pieceMove.to.equals(new Point(6, 1))) {
+				isExists = true;
+				break;
+			}
+		}
+		assertTrue(isExists);
+	}
+
 	// 局面のクローンの速度調査
 	@Test
 	public void testSceneClone() {

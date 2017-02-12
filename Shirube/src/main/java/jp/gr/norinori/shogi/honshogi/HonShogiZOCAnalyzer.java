@@ -176,11 +176,20 @@ public class HonShogiZOCAnalyzer implements ZOCAnalyzer {
 				if (pieceMove.from.equals(outePieceMove.to)) {
 
 					boolean existsMovable = false;
-					for (PieceMove outePieceMove2 : outeBlockLine) {
-						// 同じ王手している駒の軌道のみ対象
-						if (outePieceMove.from.equals(outePieceMove2.from) && pieceMove.to.equals(outePieceMove2.to)) {
+					for (PieceMove outePieceMove2 : pieceZoneOfControl.getOuteList()) {
+						if (pieceMove.from.equals(outePieceMove2.from)) {
 							existsMovable = true;
 							break;
+						}
+					}
+					if (!existsMovable) {
+						for (PieceMove outePieceMove2 : outeBlockLine) {
+							// 同じ王手している駒の軌道のみ対象
+							if (outePieceMove.from.equals(outePieceMove2.from)
+									&& pieceMove.to.equals(outePieceMove2.to)) {
+								existsMovable = true;
+								break;
+							}
 						}
 					}
 					if (!existsMovable) {
