@@ -1,3 +1,5 @@
+CREATE DATABASE `shogi`
+
 CREATE TABLE `game` (
 	`id` BIGINT(20) NOT NULL AUTO_INCREMENT,
 	`winner` TINYINT(4) NULL DEFAULT NULL,
@@ -69,6 +71,7 @@ CREATE TABLE `ex_scene` (
 	`second_win_rate` INT(11) NOT NULL DEFAULT '0',
 	`total` BIGINT(20) NOT NULL DEFAULT '0',
 	`tumi` TINYINT(4) NULL DEFAULT NULL,
+	`reliability` FLOAT NOT NULL,
 	PRIMARY KEY (`id`),
 	UNIQUE INDEX `hash` (`hash`)
 )
@@ -93,12 +96,13 @@ CREATE TABLE `on_scene_link` (
 	`action_hash` VARCHAR(46) NOT NULL DEFAULT '0' COLLATE 'utf8_unicode_ci',
 	`scene_hash_to` VARCHAR(46) NOT NULL DEFAULT '0' COLLATE 'utf8_unicode_ci',
 	PRIMARY KEY (`id`),
-	UNIQUE INDEX `scene_hash` (`scene_hash_from`, `scene_hash_to`),
+	UNIQUE INDEX `scene_hash` (`scene_hash_from`, `scene_hash_to`)
 )
 COLLATE='utf8_unicode_ci'
 ENGINE=InnoDB
 ;
 
+--- sample sql
 delete from game where exists (select * from on_game_scene where game.id = on_game_scene.game_id);
 truncate table on_game_scene;
 truncate table on_scene;
@@ -126,5 +130,6 @@ select hash
 , truncate((truncate((second_win_count/2) / total, 4) - 0.5) * 20000 ,0)
 , total, tumi
 from scene where total > 10;
+
 
 grant all privileges on shogi.* to root@"%" identified by '' with grant option ;
